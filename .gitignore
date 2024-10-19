@@ -163,5 +163,6 @@ cython_debug/
 
 /wiki_model/**
 /lm-evaluation-harness/**
+/lm-evaluation-harness
 /swap-uniba/**
-/models/**
+/models/llamantino_wiki_all_1/**
