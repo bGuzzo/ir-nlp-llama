@@ -8,6 +8,7 @@
 \usepackage{amssymb}
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{hyperref} % Web link
+\usepackage{multicol} % Milti column
 
 \newcommand\scalemath[2]{\scalebox{#1}{\mbox{\ensuremath{\displaystyle #2}}}}
 
@@ -259,24 +260,89 @@
 	
 	\section{LLaMAntino 3 8B Further Fine-Tuning}
 	The objective of this project is to test wether is possible to extend further the capabilities of LLaMAntino 3 model to generalize and handle Italian language tasks, such as chatting.
-	Since the adoption of already discussed optimization strategy has proved to be needed run this kind of model locally, we run some of the same benchmark proposed by the authors to check how these optimizations impact the overall model permanence.   
+	Since the adoption of already discussed optimization strategy has proved to be needed run this kind of model locally, we run some of the same benchmark proposed by the authors to check how these optimizations impact the overall model permanence. 
+	A description of those benchmarks is present in the appendix section.  
 	To save time, we choose to adopt a subset 0.20\% of the proposed datasets used by the benchmarks chosen by the authors.  
+	
 	\begin{table*}[h]
 		\center
 		\begin{tabular}{ccc}
 			\toprule
-			\textbf{Metric} & \textbf{Original Value} & \textbf{Optimized Value} \\
+			\textbf{Metric} & \textbf{Original Value} & \textbf{Our Value} \\
 			\midrule
-			Avg. & 0.6160 & xyz \\
-			Arc\_IT & 0.5714 & xyz \\
-			Hellaswag\_IT &	0.7093 & xyz \\
+			Arc\_IT & 0.5714 & 0.5256 \\
+			Hellaswag\_IT &	0.7093 & 0.6775 \\
 			\bottomrule
 		\end{tabular}
 		\caption{\textbf{LLaMAntino 3, 4-bit Quantization, 20\% Dataset}}
 	\end{table*}
-	The first way we choose to try extend the model generalization capability and enhance its knowledge regarding the Italian language it to fine tune the model to whole Italian Wikipedia dataset, available online. 
-	This first idea has been justified since part of this dataset - and its variants - has been commonly used in the training of successful LLMs like the Open AI's GPT family. The dataset we choose has roughly 1.83M rows with field such as title, text and url, more details can be found \href{https://huggingface.co/datasets/wikimedia/wikipedia/viewer/20231101.it}{here} . 
-	   
+	
+	\subsection{Italian Wikipedia Dataset}
+	The first way we choose to try extend the model generalization capability and enhance its knowledge regarding the Italian language it to fine tune the model to the whole Italian Wikipedia dataset, available online. 
+	This first idea has been justified since part of this dataset - and its variants - has been commonly used in the training of successful LLMs like the Open AI's GPT family. The dataset we choose has roughly 1.83M rows with field such as title, text and url, more details can be found \href{https://huggingface.co/datasets/wikimedia/wikipedia/viewer/20231101.it}{here}.
+	
+	\subsubsection{Fine-Tuning process}
+	The fine-tuning has been made possible by the adoption of the optimizations described above and the overall fine-tuning for one epoch has took roughly 48 hours on a 8GB GPU.
+	We choose a LoRA rank ($r$) equal to 32, this allowed us to train roughly 83M parameters i.e. 8.3\% of the total model parameters. 
+	
+	\begin{table*}[h]
+		\center
+		\begin{tabular}{ccc}
+			\toprule
+			\textbf{Metric} & \textbf{Original Value} & \textbf{Our Value} \\
+			\midrule
+			Arc\_IT & 0.5256 & 0.4188 \\
+			Hellaswag\_IT &	0.6775 & 0.5182 \\
+			\bottomrule
+		\end{tabular}
+		\caption{\textbf{LLaMAntino 3, Full Wikipedia IT, $r=32$, $\alpha=8$}}
+	\end{table*} 
+	
+	Despite the resource employed there has been a sensible decrement of the chosen benchmark metrics. Our hypothesis is that due to the LoRA adaptation the number of trained parameter has not been sufficient. 
+	We have expected not to degrade the model performance at least for the ARC benchmark which is based on a grade-school level multiple-choice science questions, thus in our view such a fine-tune strategy should have improved the model on this field.
+	
+	\subsubsection{Empirical results}
+	To gain a glimpse of how this fine-tune has changed the model we propose a set of prompts given to both non-tuned and tuned models. We have then preserved the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 256 tokens. \\
+	
+	\textbf{Wikipedia IT Fine-Tuned Model}:
+	\begin{enumerate}
+
+		\item 
+		\textbf{Prompt}: Scrivi una breve storia per bambini in rima sulla vita di Leonardo da Vinci, usando un linguaggio semplice e fantasioso.\\
+		\textbf{Response}: \textit{Leonardo da Vinci nacque a Vinci, in Toscana, in una famiglia numerosa di artisti. Il padre fu un pittore e la madre una modella.\\\\Quando Leonardo era bambino, suo padre lo portò a Firenze, dove il piccolo si appassionò alla pittura, ai disegni e alle sculture. Il padre lo fece studiare pittura con un pittore locale, ma Leonardo preferì andare a Milano per studiare scultura con il famoso pittore Andrea del Verrocchio. Il maestro lo aiutò a diventare un ottimo scultore.\\\\Ma Leonardo aveva anche un grande interesse per le macchine, le invenzioni e le scoperte scientifiche. In seguito si dedicò a molti altri interessi: architettura, musica, matematica, ingegneria, letteratura e medicina. Inoltre, fu un pioniere dell'aerostatica e del volo. Studiò l'aerostato e ne realizzò alcuni modelli. Nel 1495, fu il primo a volare, ma non riuscì a compiere un vol...}
+		
+		\item 
+		\textbf{Prompt}: Scrivi un sonetto in stile petrarchesco che esprima il dolore per la perdita di una persona cara.\\
+		\textbf{Response}: \textit{In un giorno di tenebra, di lutto e di pianto\\Nel quale l'Amore e la Memoria si fanno notare\\La tua scomparsa, oh cara, è un dolore\\Inestinguibile, che non lascia spazio a consolazione.\\\\La tua bellezza, oh cara, è un fuoco\\Che brucia nel mio cuore, senza spegnersi\\La tua bocca, oh cara, è una fonte\\Da cui sgorga un fiume di parole.\\\\La tua voce, oh cara, è un suono\\Che risuona in ogni parte del mio cuore\\La tua presenza, oh cara, è un'ombra\\Che mi segue ovunque vada.\\\\In un giorno di lutto, di pianto e di dolore\\Nel quale l'Amore e la Memoria si fanno notare\\La tua scomparsa, oh cara, è un dolore\\Inestinguibile, che non lascia spazio a consolazione.}
+		
+		\item 
+		\textbf{Prompt}: Descrivi le principali differenze tra la fisica classica e la fisica quantistica, evidenziando le implicazioni filosofiche di queste differenze.\\
+		\textbf{Response}: \textit{La fisica classica è la teoria scientifica che descrive il mondo fisico in termini di oggetti e processi macroscopici, come l'acqua, l'aria, la terra, i corpi celesti, la materia, le forze e le loro interazioni, in termini di strutture e processi discreti e deterministici. Il mondo fisico è considerato come un insieme di entità separate e indipendenti, con proprietà definite e determinate, e con leggi e processi che ne determinano l'evoluzione. Il mondo fisico è quindi considerato come un insieme di oggetti e processi, e le loro proprietà e processi sono determinati da leggi e da equazioni che descrivono le leggi della natura. La fisica classica è basata sulla rappresentazione di una realtà oggettiva che esiste indipendentemente dallo studio di essa.\\\\La fisica quantistica, al contrario, è basata sulla rappresentazione di una realtà non oggettiva, che non può essere considerata come un insieme di entità separate e indipendenti. La realtà...}
+	
+	\end{enumerate}
+	 
+	\textbf{Original Model}:
+	\begin{enumerate}
+	
+		\item 
+		\textbf{Prompt}: Scrivi una breve storia per bambini in rima sulla vita di Leonardo da Vinci, usando un linguaggio semplice e fantasioso.\\
+		\textbf{Response}: \textit{In Italia, un paese bello e nuovo,\\Viveva un genio, di cui parleremo a due.\\Leonardo, un nome famoso e grande,\\Disegnava, dipingeva, e inventava in pale.\\\\Volava con gli uccelli, in cielo alto e chiaro,\\Studiava l'acqua, e come muove il vento in aria.\\Fece un cavallo, di legno, in movimento reale,\\E un'arma, per difendersi, senza ferire il reale.\\\\Disegnò un'uomo, nudo, con precisione alta,\\E dipinse una Madonna, con un sorriso soave e alta.\\Inventò un'elica, e un aereo, in sogno li vide,\\E scrisse, disegnò, e sognò, finché il destino lo diede.}
+		
+		\item 
+		\textbf{Prompt}:  Scrivi un sonetto in stile petrarchesco che esprima il dolore per la perdita di una persona cara.\\
+		\textbf{Response}: \textit{In mortal vita, dove si va a no,\\Troppo presto te seppi perdere, amica,\\E con te, la luce che mi faceva no,\\E la speranza, che in te riposava.\\\\La tua memoria, in me ferma stays,\\E con essa, il lamento e la pietra,\\Che sul cuore, pesa, inestrimabile ways,\\E la notte, che non ha più serenata.\\\\Tanto, in te, avevo la mia pace,\\E in te, la mia vita, era tutta inerte,\\Ora, in te non c'è più, né spazio,\\E la mia, è in tormento, inestirperta.}
+		
+		\item 
+		\textbf{Prompt}: Descrivi le principali differenze tra la fisica classica e la fisica quantistica, evidenziando le implicazioni filosofiche di queste differenze.\\
+		\textbf{Response}: \textit{Le differenze fondamentali:\\\\1. **Determinismo vs. Indeterminismo**: Fisica classica: eventi determinati da condizioni iniziali e leggi di natura; Fisica quantistica: eventi casuali, descrivibili solo da probabilità di esito.\\2. **Osservazione e misura**: Fisica classica: proprietà oggettive, indipendenti dall'osservatore; Fisica quantistica: proprietà in relazione all' osservatore, collegate alla misura.\\3. **Località vs. Non-località**: Fisica classica: azioni isolate, spazio e tempo separati; Fisica quantistica: azioni non-locali, entanglement e quantità di azione non spaziotemporaliamente separate.\\\\Implicazioni filosofiche:\\\\* La fisica quantistica sconvolge l'idea di oggettività e determinismo, suggerendo un ruolo attivo dell'osservatore.\\* La non-località quantistica sfida la nostra comprensione di spazio e tempo, sollevando questioni sulla natura della realtà.}
+		
+	\end{enumerate}
+
+	\subsubsection{Conclusion}
+	The evidence suggests that the fine-tuned model has a \textbf{biased language style} toward a more formal and scientific one, as the one used in the Wikipedia pages. It is of particular note that even for the tasks where creativity and informality are required - e.g. prompt 1 and 2 - the fine-tuned model tend to preserve a more \textbf{comprehensible} and \textbf{semi-formal language}. \\
+	We can further infer that the original training set must have included a collection of creative and informal Italian novels.
+	It is noteworthy as well that for the scientific tasks - i.e. prompt 3 - the fine-tuned model tend to follow a more \textbf{discursive pattern} where the original model tend to \textbf{break the information} in small chunks. 
+	Thus, the fine-tuned model is capable of generating text like the one we can found in scientific and academic books. 	
 	
 	
 	
@@ -295,6 +361,12 @@
 	
 	\section{Conclusion}
 	Summarize your main findings and conclusions. Discuss limitations and future work.
+	
+	\appendix
+	
+	\section{ARC Dataset}
+	
+	\section{HellaSwag Dataset}
 	
 	\bibliographystyle{plainnat}
 	\bibliography{references} % Replace "references" with the name of your .bib file
