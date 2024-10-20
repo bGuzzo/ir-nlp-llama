@@ -1,0 +1,67 @@
+[
+  {
+    "contesto": "Mimì la volpe dal pelo rosso si è appostata dietro un cespuglio di more. Ha sentito un lieve\ntramestio sottoterra, poi anche quel rumore è cessato. La sua preda deve avere intuito il\npericolo, qualcosa deve averla insospettita. Mimì la volpe si mimetizza, si finge morta e\naspetta. Nemmeno respira. Sa che la sua preda appena si sentirà sicura verrà fuori dal\nnascondiglio e bisogna lasciarle tutto il tempo che le occorre per muoversi. Il tempo passa.\nDopo una lunga paziente attesa appare all'imboccatura della tana un riccio. Deve\nattraversare uno spazio brevissimo per infilarsi in un altro cunicolo buio più avanti ma si\nguarda intorno circospetto, esamina il terreno, si ritrae di nuovo nella tana, riemerge\nesitando. Che animale prudente, che animale compunto, pensa la volpe. Razza nostrana di\nroditori da sottobosco che non amano camminare allo scoperto. Preferisce i suoi tortuosi\nlabirinti sotterranei, anche a costo di scavarseli con le unghie e coi denti. Avrà le sue buone\nragioni per evitare di mostrarsi alla luce del sole, comunque non lo invidio. Intanto il riccio\nsi è deciso, eccolo finalmente all'aperto. Sembra appena uscito dal letargo, è goffo, lento,\nimpacciato.\nMimì la volpe fa un bel balzo e zac! Ma il riccio in un attimo si è trasformato in una palla\nspinosa. La volpe lancia un urlo di sorpresa e di dolore e con la bocca sanguinante si\nallontana.\nChe strano animale! - pensa la volpe senza darsi per vinta. Deve avere una carne prelibata se\nla natura gliela protegge così bene. Sarà molto meglio della carne di una talpa o di quella di\nun uccello. Come mi piacerebbe assaggiarla per sapere che sapore ha!\nE fiduciosa delle proprie risorse Mimì la volpe dal pelo rosso escogita e mette in atto mille\nartifici, trucchi, espedienti, uno più ingegnoso e sottile dell'altro, per catturare il riccio e\ndivorarlo.\nEppure ogni volta il riccio si appallottola e così appallottolato risulta imprendibile.\nDopotutto un riccio non vale tanto spreco di trovate e neppure tanta ostinazione, dice a se\nstessa la volpe per consolarsi. E stanca degli innumerevoli, inutili stratagemmi che si\nconcludono sempre allo stesso modo, decide di lasciarlo perdere, quell'ottuso animale.\n(tratto da: Raffaele La Capria, Fiori giapponesi, Milano, Mondadori, 1989, pp. 91-92)",
+    "domande": [
+      {
+        "prompt_domanda": "La volpe, mentre aspetta paziente, che cosa pensa del riccio?\nA. Si comporta in modo maldestro.\nB. È un animale molto stupido.\nC. Si comporta in modo provocatorio.\nD. È un animale molto cauto.",
+        "risposta_corretta": "D"
+      },
+      {
+        "prompt_domanda": "Nelle prime 5 righe del testo, quali sono le azioni che fanno meglio capire la furbizia della volpe? Individuane almeno due e trascrivile di seguito.",
+        "risposta_corretta": "si mimetizza, si finge morta, aspetta"
+      },
+      {
+        "prompt_domanda": "Nell'espressione \"bisogna lasciarle tutto il tempo\" (riga 5) a quale parola del testo si riferisce il pronome le? Trascrivila di seguito.",
+        "risposta_corretta": "preda"
+      },
+      {
+        "prompt_domanda": "Perché il riccio quando esce dalla tana si guarda intorno circospetto (riga 8)?\nA. Ha paura della luce del giorno.\nB. Tende un tranello alla volpe.\nC. Teme i pericoli all'esterno.\nD. È appena uscito dal letargo.",
+        "risposta_corretta": "C"
+      },
+      {
+        "prompt_domanda": "Che riflessioni fa la volpe dopo il primo tentativo di catturare il riccio?\nA. È decisamente meglio cambiare tattica.\nB. Il comportamento del riccio era molto prevedibile.\nC. Ci sono forti dubbi sulla riuscita dell'impresa.\nD. È meglio lasciar perdere vista la reazione del riccio.",
+        "risposta_corretta": "A"
+      },
+      {
+        "prompt_domanda": "Se dovessi inserire una parola per collegare le due frasi seguenti: \"Ma il riccio in un attimo si è trasformato in una palla spinosa\" e \"La volpe lancia un urlo di sorpresa...\" (righe 15-16), quale metteresti?\nA. Infatti.\nB. Ed ecco che.\nC. Per di più.\nD. Invece.",
+        "risposta_corretta": "B"
+      },
+      {
+        "prompt_domanda": "Nella frase: \"Deve avere una carne prelibata...\" (riga 18) da quale espressione può essere sostituito il verbo deve?\nA. È necessario che abbia.\nB. È obbligatorio che abbia.\nC. È eventualmente possibile che abbia.\nD. È molto probabile che abbia.",
+        "risposta_corretta": "D"
+      },
+      {
+        "prompt_domanda": "Quale tra i seguenti aggettivi può sostituire sottile (riga 22) nel significato che ha nel testo detto di artifici, trucchi ed espedienti?\nA. Originale.\nB. Efficace\nC. Astuto.\nD. Intraprendente.",
+        "risposta_corretta": "C"
+      },
+      {
+        "prompt_domanda": "Nella frase \"Eppure ogni volta il riccio si appallottola...\" (riga 24) quale termine corrisponde al significato di eppure e può sostituirlo?\nA. Dunque.\nB. Ma.\nC. Ebbene.\nD. Poi.",
+        "risposta_corretta": "B"
+      },
+      {
+        "prompt_domanda": "Come si può rendere con altre parole l'espressione \"così appallottolato\" (riga 24)?\nA. Dato che si è appallottolato come si era detto.\nB. Nonostante si sia appallottolato in modo particolare.\nC. Nel caso in cui si sia appallottolato come si era detto.\nD. Tanto più che si è appallottolato in modo particolare.",
+        "risposta_corretta": "A"
+      },
+      {
+        "prompt_domanda": "Quali parole del racconto fanno capire come la volpe si giustifica per non riuscire a catturare il riccio? Ricercale nel testo e trascrivile di seguito.",
+        "risposta_corretta": "Dopotutto un riccio non vale tanto spreco di trovate e neppure tanta ostinazione"
+      },
+      {
+        "prompt_domanda": "Come sostituiresti il termine \"dopotutto\" all'inizio della riga 25?\nA. Dopo tutto questo tempo.\nB. Dopo tutti questi sforzi.\nC. Tutto considerato.\nD. Malgrado tutto",
+        "risposta_corretta": "C"
+      },
+      {
+        "prompt_domanda": "Come cambia il giudizio della volpe sul riccio nel corso della vicenda? Individua e trascrivi, nell'ordine, almeno due aggettivi che indicano tale cambiamento.",
+        "risposta_corretta": "prudente, compunto, strano, ottuso"
+      },
+      {
+        "prompt_domanda": "Tenendo conto di tutta la storia, come si può definire la volpe?\nA. Coraggiosa e poco cosciente dei pericoli.\nB. Aggressiva e ostinata.\nC. Ingegnosa e poco sincera con se stessa.\nD. Audace e intraprendente.",
+        "risposta_corretta": "C"
+      },
+      {
+        "prompt_domanda": "Quale delle seguenti affermazioni meglio sintetizza il contenuto del testo?\nA. Tutto è bene quello che finisce bene.\nB. A furia di insistere si ottiene quel che si vuole.\nC. Per avere la pancia piena bisogna ingegnarsi.\nD. La sola prudenza vale più di mille astuzie.",
+        "risposta_corretta": "D"
+      }
+    ]
+  }
+]

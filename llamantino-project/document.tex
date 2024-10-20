@@ -282,7 +282,7 @@
 	This first idea has been justified since part of this dataset - and its variants - has been commonly used in the training of successful LLMs like the Open AI's GPT family. The dataset we choose has roughly 1.83M rows with field such as title, text and url, more details can be found \href{https://huggingface.co/datasets/wikimedia/wikipedia/viewer/20231101.it}{here}.
 	
 	\subsubsection{Fine-Tuning process}
-	The fine-tuning has been made possible by the adoption of the optimizations described above and the overall fine-tuning for one epoch has took roughly 48 hours on a 8GB GPU.
+	The fine-tuning has been made possible by the adoption of the optimizations described above and the overall fine-tuning for one epoch has took roughly 50 hours on a 8GB GPU.
 	We choose a LoRA rank ($r$) equal to 32, this allowed us to train roughly 83M parameters i.e. 8.3\% of the total model parameters. 
 	
 	\begin{table*}[h]
@@ -301,7 +301,7 @@
 	Despite the resource employed there has been a sensible decrement of the chosen benchmark metrics. Our hypothesis is that due to the LoRA adaptation the number of trained parameter has not been sufficient. 
 	We have expected not to degrade the model performance at least for the ARC benchmark which is based on a grade-school level multiple-choice science questions, thus in our view such a fine-tune strategy should have improved the model on this field.
 	
-	\subsubsection{Empirical results}
+	\subsection{Empirical results}
 	To gain a glimpse of how this fine-tune has changed the model we propose a set of prompts given to both non-tuned and tuned models. We have then preserved the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 256 tokens. \\
 	
 	\textbf{Wikipedia IT Fine-Tuned Model}:
@@ -338,29 +338,98 @@
 		
 	\end{enumerate}
 
-	\subsubsection{Conclusion}
+	\subsection{Conclusion}
 	The evidence suggests that the fine-tuned model has a \textbf{biased language style} toward a more formal and scientific one, as the one used in the Wikipedia pages. It is of particular note that even for the tasks where creativity and informality are required - e.g. prompt 1 and 2 - the fine-tuned model tend to preserve a more \textbf{comprehensible} and \textbf{semi-formal language}. \\
 	We can further infer that the original training set must have included a collection of creative and informal Italian novels.
 	It is noteworthy as well that for the scientific tasks - i.e. prompt 3 - the fine-tuned model tend to follow a more \textbf{discursive pattern} where the original model tend to \textbf{break the information} in small chunks. 
 	Thus, the fine-tuned model is capable of generating text like the one we can found in scientific and academic books. 	
 	
-	
-	
 		
-	\section{Related Work}
-	Review existing research and literature relevant to your topic.
+	\section{Testing Italian LLMs using INVALSI}
+	Testing the language comprehension of an LLM is no easy task, particularly when we are dealing with numerous tasks possible. One way to test the general capability of a language model to comprehend a given language is to use the national reference test for the education system. For the Italian language, such a test are developed by INVALSI each year to test the ability of middle and high school Italian students. 
+	In our case we choose to develop a small benchmark of \textbf{80 Italian language comprehension questions} extracted form the INVALSI tests of the years 2008, 2009 and 2010 for the middle school.The final dataset include three JSON file - each per year - containing a list of object with information regarding the context and a list of questions with the real answer.
+	The process of extracting the text, questions and answers has been done using \textbf{Google Gemini Flash} by providing a custom prompt and the original INVALSI file.  
+
+	\subsection{Prompt And Metrics}
+	Each question is feed into the model by defining a custom prompt which include some basics instruction, the context and the question.
+	\begin{center}
+	\fbox{\begin{minipage}{25em}
+		\textbf{Informazioni}: \textit{Rispondi alla seguente domanda di italiano. \\
+		Per domande a scelta multipla rispondi indicando esclusivamente la lettera. \\
+		Ad esempio: A, B o C. \\
+		Per le domande aperte rispondo i modo breve e conciso.} \\
+		\\
+		\textbf{Contesto}: \textit{\{test\_context\}} \\
+		\\
+		\textbf{Domanda}: \textit{\{test\_question\}}
+	\end{minipage}
+	}
+	\end{center}
+	Doing so each questions carries the right context and it is isolated from the others esuring no bias between the questions.
+	The model generated response is evaluated by comparing it to the real one using the \textbf{ROUGE-1} metric (precision), then we extract the mean of this value across questions.
+	We also used a \textbf{multi-run strategy}, this means that the final metric is the mean of the metrics obtained with multiple benchmark run with the same parameters. This allow us to stabilize the overall metrics by reducing the impact of model randomness. Typically, we use two to three run epochs for this benchmark. 
 	
-	\section{Methodology}
-	Describe the methods you used to conduct your research.
+	\subsection{Models comparison}
+	To compare the original model and our fine-tuned version we choose to use the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 8. Such a small number of allowed output token is justified by the small answers size in the dataset. Then, we also choose to use \textbf{two epoch} for the benchmark due to time reason, though this is enough to reduce the randomness of the metrics.
+	As seen before, to execute this benchmark we have used once again the 4-bit quantization to prevent out of memory errors. \\
+	The results is listed in the table below.
+		
+	\begin{table*}[h]
+		\center
+		\begin{tabular}{ccc}
+			\toprule
+			\textbf{LLaMA 3 8B} & \textbf{LLaMAntino 3 8B} & \textbf{Our Model} \\
+			\midrule
+			0.12875 & 0.183020 & 0.081875 \\
+			\bottomrule
+		\end{tabular}
+		\caption{\textbf{INVALSI Language Comprehension}, 4-bit quantization}
+	\end{table*} 
 	
-	\section{Results}
-	Present your findings and data. Use tables and figures to illustrate your results.
+	\subsection{Conclusion}
+	Despite a very \textbf{bad performance} of all three evaluated model, it is evident how our fine tuning strategy has not improved the model user this aspect. It is worth noting that none of the considered models perform well in this benchmark.
+	In our view this behavior stems from how the model has been designed and trained, as shown before both the original LLaMAntino 3 model and our fine-tuned version has proven to be efficient in generating response with \textbf{robust context} but struggle when a very brief text is needed as response. \\
+	This behavior can certainly be moderated by an accurate fine-tuning process, like \textbf{reward training} to force the model in a certain type of output. \\\\
+	Extending further the idea of using INVALSI test as benchmark could lead to solid benchmark stragey to test how well the newer LLMs performs in understanding deeply the Italian language. 
+	In fact, this idea has been recently exploded in the Italian academic community leading to a public classification of the most common LLMs regarding the Italian language. More denials could be found \href{https://huggingface.co/spaces/Crisp-Unimib/INVALSIbenchmark}{here}.  
 	
-	\section{Discussion}
-	Interpret your results and discuss their implications. Relate your findings to existing research.
+	
+	\section{Model Implementation}
+	We finally propose two implementation of our model, one as a chat-bot and the second in a RAG System in which it can extract information from a knowledge base of plain-text books and files. 
+	
+	\subsection{RAG Implementation}
+	\textbf{Retrieval-Augmented Generation} (RAG) is a powerful technique that enhances the capabilities of large language models (LLMs) by incorporating external knowledge sources. This approach addresses a fundamental limitation of LLMs: their reliance on the knowledge encoded within their parameters during training. By integrating external information, RAG systems can generate more accurate, informative, and contextually relevant responses, significantly improving the overall user experience. \\
+	Our implementation enrich the model knowledge using a library of plain-text files. Despite the possibility of using several documents and books, our implementation use only one book due to the limited VRAM availabe. However, it is capable of generating helpful information regarding the chosen topic. An example can be found below.
+	
+	\begin{center}
+		\fbox{\begin{minipage}{30em}
+			\textbf{Prompt}: Speiga in breve il primo canto della divina commedia. \\
+			\textbf{Response}: \textit{Il primo canto della Divina Commedia di Dante Alighieri è il canto in cui l'autore introduce il lettore nella sua opera, esortandolo a seguirlo nel viaggio verso il Paradiso terrestre e l'eternità. Il canto è anche l'unico nella Commedia in cui Dante si rivolge direttamente al lettore, esortandolo a partecipare alla sua esperienza di poeta, che ha come obiettivo la salvezza dell'anima.}		
+		\end{minipage}
+		}
+	\end{center}
+	
+	Retrieval-Augmented Generation is a promising approach that significantly enhances the capabilities of large language models. As research in this area continues to advance, we can expect RAG systems to play an increasingly important role in the development and deployment of AI-powered solutions.
+	
+	\subsection{Chat-Bot Implementation}
+	LLMs can also be used as a cha-bot to help and entertain the user while providing quick and comprehensible information. This is especially important in context such as voice assistant and customer assistance. We propose a chat-bot based on our fine-tuned model capable of entertain a semi-real-time conversation about different topics. \\
+	Such speed is reached by limiting the maximum number of generated token to 64.
+	Our implementation is also capable of storing the chat history using a chat template that involve using a system prompt to guide the model behavior. An example of such prompt can be seen below.
+	
+	\begin{center}
+		\fbox{\begin{minipage}{30em}
+				\textit{Sei un an assistente AI per la lingua Italiana di nome LLaMAntino-3 ANITA (Advanced Natural-based interaction for the ITAlian language). \\
+				Rispondi nella lingua usata per la domanda in modo chiaro, semplice ed esaustivo. \\
+				Rispondi alle richieste degli utenti nel modo più conciso possibile, usando il minor numero di parole.}		
+			\end{minipage}
+		}
+	\end{center}
+	
 	
 	\section{Conclusion}
-	Summarize your main findings and conclusions. Discuss limitations and future work.
+	Present your findings and data. Use tables and figures to illustrate your results.
+	
+	\section*{Appendix}
 	
 	\appendix
 	
