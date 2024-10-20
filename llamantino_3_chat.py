@@ -1,3 +1,4 @@
+import json
 import torch
 import transformers
 from transformers import (
@@ -20,6 +21,8 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 tokenizer = AutoTokenizer.from_pretrained(base_model)
 
+print('templ', tokenizer.chat_template)
+
 # sys = (
 #     "Sei un an assistente AI per la lingua Italiana di nome LLaMAntino-3 ANITA "
 #     "(Advanced Natural-based interaction for the ITAlian language)."
@@ -29,7 +32,7 @@ tokenizer = AutoTokenizer.from_pretrained(base_model)
 sys = """
     Sei un an assistente AI per la lingua Italiana di nome LLaMAntino-3 ANITA (Advanced Natural-based interaction for the ITAlian language).
     Rispondi nella lingua usata per la domanda in modo chiaro, semplice ed esaustivo.
-    
+    Rispondi alle richieste degli utenti nel modo più conciso possibile, usando il minor numero di parole.
 """
 
 messages = [
@@ -41,7 +44,7 @@ pipe = transformers.pipeline(
     tokenizer=tokenizer,
     return_full_text=False, # langchain expects the full text
     task='text-generation',
-    max_new_tokens=512, # max number of tokens to generate in the output
+    max_new_tokens=64, # max number of tokens to generate in the output
     temperature=0.6,  #temperature for more or less creative answers
     do_sample=True,
     top_p=0.9,
@@ -57,4 +60,5 @@ while(True):
     for seq in gen_seqs:
         segn_seq_str = segn_seq_str + seq['generated_text']
     messages.append({"role": "assistant", "content": segn_seq_str})
+    print(json.dump(messages))
     print(f"A:\t{segn_seq_str}")

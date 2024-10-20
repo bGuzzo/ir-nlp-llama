@@ -414,17 +414,9 @@
 	\subsection{Chat-Bot Implementation}
 	LLMs can also be used as a cha-bot to help and entertain the user while providing quick and comprehensible information. This is especially important in context such as voice assistant and customer assistance. We propose a chat-bot based on our fine-tuned model capable of entertain a semi-real-time conversation about different topics. \\
 	Such speed is reached by limiting the maximum number of generated token to 64.
-	Our implementation is also capable of storing the chat history using a chat template that involve using a system prompt to guide the model behavior. An example of such prompt can be seen below.
-	
-	\begin{center}
-		\fbox{\begin{minipage}{30em}
-				\textit{Sei un an assistente AI per la lingua Italiana di nome LLaMAntino-3 ANITA (Advanced Natural-based interaction for the ITAlian language). \\
-				Rispondi nella lingua usata per la domanda in modo chiaro, semplice ed esaustivo. \\
-				Rispondi alle richieste degli utenti nel modo più conciso possibile, usando il minor numero di parole.}		
-			\end{minipage}
-		}
-	\end{center}
-	
+	Our implementation is also capable of storing the chat history using a chat template that involve using a system prompt to guide the model behavior. \\
+	The complete chat template include the system prompt, the user questions and the model responses listed in order. This enables the model to follow the conversation topic providing off-topic responses. We avoid to show it here due to complex form of the special token used. \\
+	 
 	
 	\section{Conclusion}
 	Present your findings and data. Use tables and figures to illustrate your results.
