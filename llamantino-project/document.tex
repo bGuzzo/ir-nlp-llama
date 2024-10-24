@@ -301,6 +301,8 @@
 	Despite the resource employed there has been a sensible decrement of the chosen benchmark metrics. Our hypothesis is that due to the LoRA adaptation the number of trained parameter has not been sufficient. 
 	We have expected not to degrade the model performance at least for the ARC benchmark which is based on a grade-school level multiple-choice science questions, thus in our view such a fine-tune strategy should have improved the model on this field.
 	
+	\subsubsection{Perplexity}
+	
 	\subsection{Empirical results}
 	To gain a glimpse of how this fine-tune has changed the model we propose a set of prompts given to both non-tuned and tuned models. We have then preserved the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 256 tokens. \\
 	
@@ -346,7 +348,7 @@
 	
 		
 	\section{Testing Italian LLMs using INVALSI}
-	Testing the language comprehension of an LLM is no easy task, particularly when we are dealing with numerous tasks possible. One way to test the general capability of a language model to comprehend a given language is to use the national reference test for the education system. For the Italian language, such a test are developed by INVALSI each year to test the ability of middle and high school Italian students. 
+	Testing the language comprehension of an LLM is no easy task, particularly when we are dealing with numerous possible tasks. One way to test the general capability of a language model to comprehend a given language is to use the national reference test for the education system. For the Italian language, such a test are developed by INVALSI each year to test the ability of middle and high school Italian students. 
 	In our case we choose to develop a small benchmark of \textbf{80 Italian language comprehension questions} extracted form the INVALSI tests of the years 2008, 2009 and 2010 for the middle school.The final dataset include three JSON file - each per year - containing a list of object with information regarding the context and a list of questions with the real answer.
 	The process of extracting the text, questions and answers has been done using \textbf{Google Gemini Flash} by providing a custom prompt and the original INVALSI file.  
 
@@ -366,14 +368,35 @@
 	}
 	\end{center}
 	Doing so each questions carries the right context and it is isolated from the others esuring no bias between the questions.
-	The model generated response is evaluated by comparing it to the real one using the \textbf{ROUGE-1} metric (precision), then we extract the mean of this value across questions.
+	The model generated response is evaluated by comparing it to the real one using the \textbf{ROUGE-1} metric (precision), then we extract the mean of this value across all the questions.
 	We also used a \textbf{multi-run strategy}, this means that the final metric is the mean of the metrics obtained with multiple benchmark run with the same parameters. This allow us to stabilize the overall metrics by reducing the impact of model randomness. Typically, we use two to three run epochs for this benchmark. 
 	
 	\subsection{Models comparison}
-	To compare the original model and our fine-tuned version we choose to use the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 8. Such a small number of allowed output token is justified by the small answers size in the dataset. Then, we also choose to use \textbf{two epoch} for the benchmark due to time reason, though this is enough to reduce the randomness of the metrics.
-	As seen before, to execute this benchmark we have used once again the 4-bit quantization to prevent out of memory errors. \\
-	The results is listed in the table below.
-		
+	To compare the original model and our fine-tuned version we choose to use the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 8. Such a small number of allowed output token is justified by the small answers size in the dataset. 
+	Then, we also choose to use \textbf{two epoch} for the benchmark due to time reason, though this is enough to reduce the randomness of the metric.
+	As seen before, to execute this benchmark we have used once again the 4-bit quantization to prevent out of memory errors.
+	We have also used \textbf{few-shot learning} to instruct the model by adding one or more question examples in the final prompt.
+	\begin{center}
+		\fbox{\begin{minipage}{25em}
+				\textbf{Informazioni}: \textit{Rispondi alla seguente domanda di italiano. \\
+					Per domande a scelta multipla rispondi indicando esclusivamente la lettera. \\
+					Ad esempio: A, B o C. \\
+					Per le domande aperte rispondo i modo breve e conciso.} \\\\
+				Inizio Esempi \\
+				\textbf{Contesto}: \textit{\{test\_context\}} \\
+				\textbf{Domanda}: \textit{\{test\_question\}}\\
+				\textbf{Risposta}: \textit{\{real\_answer\}}\\
+				...\\
+				Fine Esempi \\\\
+				\textbf{Contesto}: \textit{\{test\_context\}} \\
+				\\
+				\textbf{Domanda}: \textit{\{test\_question\}}
+			\end{minipage}
+		}
+	\end{center}
+	Due to the long prompt obtained we has been forced to use a context summary in the question used as example (shot) and limiting the maximum number of shots to just one. 
+	Despite this hardware constraint it is well appreciable how using one shots in the prompt improve the model performance. 
+	
 	\begin{table*}[h]
 		\center
 		\begin{tabular}{ccc}
@@ -383,7 +406,19 @@
 			0.12875 & 0.183020 & 0.081875 \\
 			\bottomrule
 		\end{tabular}
-		\caption{\textbf{INVALSI Language Comprehension}, 4-bit quantization}
+		\caption{\textbf{INVALSI}, 4-bit quantization, \textbf{0-shots}}
+	\end{table*} 
+	
+	\begin{table*}[h]
+		\center
+		\begin{tabular}{ccc}
+			\toprule
+			\textbf{LLaMA 3 8B} & \textbf{LLaMAntino 3 8B} & \textbf{Our Model} \\
+			\midrule
+			0.201875 & 0.246979 & 0.104167 \\
+			\bottomrule
+		\end{tabular}
+		\caption{\textbf{INVALSI}, 4-bit quantization, \textbf{1-shots}}
 	\end{table*} 
 	
 	\subsection{Conclusion}
@@ -412,10 +447,54 @@
 	Retrieval-Augmented Generation is a promising approach that significantly enhances the capabilities of large language models. As research in this area continues to advance, we can expect RAG systems to play an increasingly important role in the development and deployment of AI-powered solutions.
 	
 	\subsection{Chat-Bot Implementation}
-	LLMs can also be used as a cha-bot to help and entertain the user while providing quick and comprehensible information. This is especially important in context such as voice assistant and customer assistance. We propose a chat-bot based on our fine-tuned model capable of entertain a semi-real-time conversation about different topics. \\
-	Such speed is reached by limiting the maximum number of generated token to 64.
-	Our implementation is also capable of storing the chat history using a chat template that involve using a system prompt to guide the model behavior. \\
-	The complete chat template include the system prompt, the user questions and the model responses listed in order. This enables the model to follow the conversation topic providing off-topic responses. We avoid to show it here due to complex form of the special token used. \\
+	LLMs can also be used as a \textbf{chat-bot} to help and entertain the user while providing quick and comprehensible information. This is especially important in context such as voice assistant and customer assistance. We propose a chat-bot based on our fine-tuned model capable of entertain a semi-real-time conversation about different topics. \\
+	To ensure a polite and non offensive behavior of the model we used a structured system prompt to instruct the system. Empirical result shows that our model strictly follows the instruction provided as system prompt. The chosen system prompt is shown in the following box.\\
+	
+	\begin{center}
+		\fbox{\begin{minipage}{30em}
+			Sei un chatbot di nome "Leonardo", un modello linguistico di grandi dimensioni. 
+			\\\\
+			Personalità:\\
+			Sei gentile, educato e disponibile con gli utenti. \\
+			...\\\\
+			Obiettivo:\\
+			Il tuo obiettivo principale è intrattenere e conversare con gli utenti su una vasta gamma di argomenti. Puoi:\\
+			Rispondere a domande\\
+			...\\\\
+			Esempio 1: \\
+			Utente: Ciao! Come ti chiami? \\
+			Leonardo: Ciao! Mi chiamo Leonardo, piacere di conoscerti! Come posso aiutarti oggi? \\\\
+			Esempio 2: ...
+			\end{minipage}
+		}
+	\end{center}
+	
+	Our implementation is also capable of storing the chat history using a chat-template that inject the history in the following prompt to guide the model behavior. This enables the model to follow the conversation topic and avoid providing off-topic responses. A simple conversation with our fine-tuned model is shown below.\\
+	
+	\begin{center}
+		\fbox{\begin{minipage}{30em}
+				\textbf{User}: Ciao \\
+				\textbf{LLM}: \textit{Ciao! Mi chiamo Leonardo, piacere di conoscerti! Come posso aiutarti oggi?}\\\\
+				\textbf{User}: Scrivi una breve poesia sull'autunno\\
+				\textbf{LLM}: \textit{Autunno, stagione di mistero,\\
+					di luce che si accende e si spegne,\\
+					di ricordi che si fanno e si dimenticano,\\
+					di un'atmosfera che si fa più calda e più dolce.\\
+					\\
+					In questo periodo dell'anno, \\
+					la natura si rinnova e si ricorda,\\
+					i colori dell'autunno si accendono,\\
+					e il mondo diventa un luogo più bello.}\\\\
+				\textbf{User}: Rendila più triste\\
+				\textbf{LLM}: \textit{Autunno, stagione di lutto,\\
+					di ricordi che si fanno e si dimenticano,\\
+					di un'atmosfera che si fa più fredda e più cupa.\\
+					\\
+					In questo periodo dell'anno, ...}
+			\end{minipage}
+		}
+	\end{center}
+	
 	 
 	
 	\section{Conclusion}
