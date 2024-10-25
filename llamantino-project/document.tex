@@ -183,7 +183,7 @@
 			The DPO process was also conducted using Unsloth on an NVIDIA H100 64GB GPU card.
 	\end{itemize}
 	
-	To adapt the model to the Italian language, we used the \textbf{gsarti/clean\_mc4\_it} dataset, which is a cleaned version Italian split of the multilingual colossal Common Crawl's \textbf{Web Crawl Corpus} (mC4).
+	To adapt the model to the Italian language, the authors used the \textbf{gsarti/clean\_mc4\_it} dataset, which is a cleaned version Italian split of the multilingual colossal Common Crawl's \textbf{Web Crawl Corpus} (mC4).
 	This dataset has been used with the same SFT strategy as before, formatting the prompts according to the standard LLaMA 3 template. \\
 	Then, the model has been evaluated using several benchmarks, including \textbf{MMLU}, \textbf{HellaSwag},\textbf{ A12 Reasoning Challenge} (arc\_c), TruthfulQA, Winogrande, and GSM8K. 
 	The results showed outstanding performance compared to similar and larger models, demonstrating the effectiveness of our fine-tuning strategy.
