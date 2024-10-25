@@ -17,41 +17,58 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\citation{touvron2023llamaopenefficientfoundation}
 \@writefile{toc}{\contentsline {section}{\numberline {2}The Base Model: Meta LLaMA}{2}{section.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces LLaMa model architecture}}{2}{figure.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces LLaMA model architecture}}{2}{figure.1}\protected@file@percent }
+\citation{zhang2019rootmeansquarelayer}
+\citation{su2023roformerenhancedtransformerrotary}
 \newlabel{eq_rmsnorm}{{1}{3}{The Base Model: Meta LLaMA}{equation.2.1}{}}
 \newlabel{eq_swish_func}{{2}{3}{The Base Model: Meta LLaMA}{equation.2.2}{}}
+\citation{dubey2024llama3herdmodels}
 \newlabel{fn:rope-RMat}{{4}{4}{The Base Model: Meta LLaMA}{equation.2.4}{}}
 \newlabel{q_k_inner_product}{{5}{4}{The Base Model: Meta LLaMA}{equation.2.5}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {LLaMA Model sizes, architectures, and optimization hyper-parameters}}}{4}{table.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}LLaMA 3}{4}{section.3}\protected@file@percent }
+\citation{polignano2024advanced}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces \textbf  {LLaMA 3 and LLaMA key differences}}}{5}{table.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4}LLaMAntino 3 8B}{5}{section.4}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \textbf  {LLaMAntino 3 'ANITA' Main Benchmark Result}}}{6}{table.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Optimizations}{6}{section.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Quantization}{6}{subsection.5.1}\protected@file@percent }
+\citation{hu2021loralowrankadaptationlarge}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Low Rank Adaptation (LoRA)}{7}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Gradient Checkpointing}{8}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}LLaMAntino 3 8B Further Fine-Tuning}{8}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Gradient Checkpointing}{7}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}LLaMAntino 3 8B: Further Fine-Tuning}{8}{section.6}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {LLaMAntino 3, 4-bit Quantization, 20\% Dataset}}}{9}{table.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Italian Wikipedia Dataset}{9}{subsection.6.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.1}Fine-Tuning process}{9}{subsubsection.6.1.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces \textbf  {LLaMAntino 3, Full Wikipedia IT, $r=32$, $\alpha =8$}}}{9}{table.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.2}Perplexity}{9}{subsubsection.6.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Empirical results}{9}{subsection.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Conclusion}{12}{subsection.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7}Testing Italian LLMs using INVALSI}{12}{section.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Prompt And Metrics}{13}{subsection.7.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Models comparison}{13}{subsection.7.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces \textbf  {INVALSI}, 4-bit quantization, \textbf  {0-shots}}}{14}{table.6}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces \textbf  {INVALSI}, 4-bit quantization, \textbf  {1-shots}}}{14}{table.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Conclusion}{14}{subsection.7.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {8}Model Implementation}{15}{section.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}RAG Implementation}{15}{subsection.8.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Chat-Bot Implementation}{16}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.2}Perplexity Score}{9}{subsubsection.6.1.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces \textbf  {PPL measure on random under-sampled Wikipedia IT}}}{10}{table.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.3}Common Benchmarks Scores}{10}{subsubsection.6.1.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces \textbf  {LLaMAntino 3, Full Wikipedia IT, $r=32$, $\alpha =8$}}}{10}{table.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Empirical results}{10}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Conclusion}{13}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Testing Italian LLMs using INVALSI}{13}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Prompt And Metrics}{14}{subsection.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Models comparison}{14}{subsection.7.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces \textbf  {INVALSI}, 4-bit quantization, \textbf  {0-shots}}}{15}{table.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces \textbf  {INVALSI}, 4-bit quantization, \textbf  {1-shots}}}{15}{table.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Conclusion}{15}{subsection.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Model Implementation}{16}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}RAG Implementation}{16}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Chat-Bot Implementation}{17}{subsection.8.2}\protected@file@percent }
+\citation{dac2023okapi}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Conclusion}{18}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}ARC Dataset}{18}{appendix.A}\protected@file@percent }
+\citation{dac2023okapi}
 \bibstyle{plainnat}
-\bibdata{references}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Conclusion}{17}{section.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {A}ARC Dataset}{17}{appendix.A}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {B}HellaSwag Dataset}{17}{appendix.B}\protected@file@percent }
-\gdef \@abspage@last{17}
+\bibdata{document.bib}
+\bibcite{dac2023okapi}{{1}{2023}{{Dac~Lai et~al.}}{{Dac~Lai, Van~Nguyen, Ngo, Nguyen, Dernoncourt, Rossi, and Nguyen}}}
+\bibcite{hu2021loralowrankadaptationlarge}{{2}{2021}{{Hu et~al.}}{{Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and Chen}}}
+\bibcite{dubey2024llama3herdmodels}{{3}{2024}{{Llama~Team}}{{}}}
+\bibcite{polignano2024advanced}{{4}{2024}{{Polignano et~al.}}{{Polignano, Basile, and Semeraro}}}
+\bibcite{su2023roformerenhancedtransformerrotary}{{5}{2023}{{Su et~al.}}{{Su, Lu, Pan, Murtadha, Wen, and Liu}}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}HellaSwag Dataset}{19}{appendix.B}\protected@file@percent }
+\bibcite{touvron2023llamaopenefficientfoundation}{{6}{2023}{{Touvron et~al.}}{{Touvron, Lavril, Izacard, Martinet, Lachaux, Lacroix, Rozière, Goyal, Hambro, Azhar, Rodriguez, Joulin, Grave, and Lample}}}
+\bibcite{zhang2019rootmeansquarelayer}{{7}{2019}{{Zhang and Sennrich}}{{}}}
+\gdef \@abspage@last{20}

@@ -16,7 +16,7 @@
 
 \graphicspath{ {./images/} }
 
-\title{LLaMAntino 3 8B: Further Fine-Tuning on Italian Language Using Consumer Hardware}
+\title{LLaMAntino 3: Further Refinement of the Italian Language Using Consumer Hardware}
 \author{Bruno Guzzo}
 \date{Fall 2024}
 
@@ -25,11 +25,11 @@
 	\maketitle
 	
 	\begin{abstract}
-		This project delves into the fine-tuning of a large language model (LLMs) for enhanced Italian language proficiency and its application in a chatbot.
-		By employing 4-bit quantization, gradient checkpointing, and low-rank adaptation, we efficiently fine-tune the model on consumer hardware using well established Italian  dataset. 
+		This project delves into the fine-tuning of a large language model (LLMs) for enhanced Italian language proficiency. 
+		By employing 4-bit quantization, gradient checkpointing, and low-rank adaptation,we efficiently fine-tune the model on consumer hardware using a well-established Italian dataset.. 
 		This method enables us to optimize the model's performance while minimizing computational overhead.
 		To assess the impact of our fine-tuning strategy, we conduct a comprehensive evaluation using a series of Italian benchmarks, including those for question answering, commonsense reasoning, and natural language understanding.
-		The project further explores the potential of incorporating a Retrieval-Augmented Generation (RAG) approach, based on a curated collection of Italian literature and novels, to enrich the chatbot's knowledge base and enhance its conversational capabilities.
+		The project further explores the potential of incorporating a Retrieval-Augmented Generation (RAG) approach, based on a curated collection of Italian literature and novels.
 	\end{abstract}
 	
 	\section{Introduction}
@@ -57,17 +57,17 @@
 		\begin{figure}[h]
 			\centering
 			\includegraphics[width=6cm]{llama}
-			\caption{LLaMa model architecture}
+			\caption{LLaMA model architecture}
 		\end{figure}
 		
-		The LLaMA model is a series of large language models (LLMs) ranging from 7B to 65B parameters, trained on trillions of tokens. 
+		The LLaMA models \cite{touvron2023llamaopenefficientfoundation} is a series of large language models (LLMs) ranging from 7B to 65B parameters, trained on trillions of tokens. 
 		The goal of LLaMA is to achieve the best possible performance at various inference budgets.
 		The model architecture is based on the transformer architecture, with the following modifications:
 		
 		\begin{itemize}
 		
 			\item 
-				\textbf{Pre-normalization}: The input of each transformer sub-layer is normalized, rather than normalizing the output. The \textbf{RMSNorm} normalizing function is used. RMSNorm simplifies the LayerNorm (used by transfomer) by removing the re-centering operation, relying only on re-scaling. It normalizes the summed inputs to a neuron using the Root Mean Square (RMS) statistic.
+				\textbf{Pre-normalization}: The input of each transformer sub-layer is normalized, rather than normalizing the output. The \textbf{RMSNorm} normalizing function \cite{zhang2019rootmeansquarelayer} is used. RMSNorm simplifies the LayerNorm (used by transfomer) by removing the re-centering operation, relying only on re-scaling. It normalizes the summed inputs to a neuron using the Root Mean Square (RMS) statistic.
 				\begin{align}\label{eq_rmsnorm}
 					\begin{split}
 						& \bar{a}_i = \frac{a_i}{\text{RMS}(\mathbf{a})} g_i, \quad \text{where}~~ \text{RMS}(\mathbf{a}) = \sqrt{\frac{1}{n} \sum_{i=1}^{n} a_i^2}.
@@ -91,7 +91,7 @@
 				SwiGLU is \textbf{non-monotonic}, this allows it to capture complex non-linear relationships between input and output.
 			
 			\item 
-				\textbf{Rotary Position Embeddings}: Absolute positional embeddings are removed, and instead rotary positional embeddings (RoPE) are used at each layer of the network to compute query and key. \textbf{RoPE} is based on the idea of using a rotation matrix to control the inner product between query and value vectors.
+				\textbf{Rotary Position Embeddings}: Absolute positional embeddings are removed, and instead rotary positional embeddings (RoPE)  \cite{su2023roformerenhancedtransformerrotary} are used at each layer of the network to compute query and key. \textbf{RoPE} is based on the idea of using a rotation matrix to control the inner product between query and value vectors.
 				Let $x_m \in \mathbb{R}^d$ and $x_n \in \mathbb{R}^d$ be two word embeddings at positions $m$ and $n$, respectively. Let $q_m$ and $k_n$ be the corresponding query and key vectors. RoPE encodes the relative position information by rotating $q_m$ and $k_n$ by an angle that is proportional to $m-n$. The rotated vectors are then used to compute the inner product. Then, \textbf{the rotation matrix} is defined as follows: 
 				\begin{equation}
 					\scalemath{0.75}{
@@ -136,7 +136,7 @@
 		\end{table*}  
 		
 	\section{LLaMA 3}	
-		LLaMA 3 is a series of large language models (LLMs) developed by Meta AI. It is the successor to the LLaMA model, featuring significant enhancements in terms of scale, performance, and capabilities. A key improvement from LLaMA to LLaMA 3 is the adoption of the \textbf{Grouped Query Attention} (GQA). It is a type of attention mechanism that groups the queries into a smaller number of groups where each group shares a single key and value. This strategy reduces the number of attention weights that need to be computed leading to faster training and computation.
+		LLaMA \cite{dubey2024llama3herdmodels} 3 is a series of large language models (LLMs) developed by Meta AI. It is the successor to the LLaMA model, featuring significant enhancements in terms of scale, performance, and capabilities. A key improvement from LLaMA to LLaMA 3 is the adoption of the \textbf{Grouped Query Attention} (GQA). It is a type of attention mechanism that groups the queries into a smaller number of groups where each group shares a single key and value. This strategy reduces the number of attention weights that need to be computed leading to faster training and computation.
 		
 	
 		\begin{table*}[h]
@@ -165,11 +165,11 @@
 			\caption{\textbf{LLaMA 3 and LLaMA key differences}}
 		\end{table*}  
 	
-		LLaMA 3 undergoes a post-training process that aligns it with human feedback. 
+		LLAMA 3 undergoes a post-training process that aligns it with human feedback.
 		This process involves \textbf{Supervised Fine-Tuning} (SFT) and \textbf{Direct Preference Optimization} (DPO). SFT is conducted on a mixture of human-annotated and synthetically-generated data, while DPO utilizes human-annotated preference data.
 		
 	\section{LLaMAntino 3 8B}
-	\textbf{LLaMAntino 3 8B} 'ANITA' is Italian language LLM based on the Meta's LLaMA 3 8 billion parameters model. It is developed and maintained by the \textbf{SWAP Team} of the Bari University, Italy. It is fine-tuned using a combination of \textbf{Supervised Fine-Tuning} (SFT) and \textbf{Dynamic Preference Optimization} (DPO) to achieve superior performance in the Italian language. \\
+	\textbf{LLaMAntino 3 8B} 'ANITA' \cite{polignano2024advanced} is Italian language LLM based on the Meta's LLaMA 3 8 billion parameters model. It is developed and maintained by the \textbf{SWAP Team} of the Bari University, Italy. It is fine-tuned using a combination of \textbf{Supervised Fine-Tuning} (SFT) and \textbf{Dynamic Preference Optimization} (DPO) to achieve superior performance in the Italian language. \\
 	The fine-tuning process involved two main steps: 
 	
 	\begin{itemize}
@@ -212,12 +212,11 @@
 	\begin{equation}
 		r=S(q-Z)
 	\end{equation}
-	Where \textbf{r} is the real value, \textbf{q} is the quantized value, \textbf{S} is the scale factor and \textbf{Z} is the zero-point. \\
-	To minimize accuracy loss, quantized training simulates the effects of quantization during the training process. This allows the network to adapt to the lower precision representation. During training, weights and activations are quantized in the forward pass, but gradients are still computed and updated in floating-point.
+	Where \textbf{r} is the real value, \textbf{q} is the quantized value, \textbf{S} is the scale factor and \textbf{Z} is the zero-point. To minimize accuracy loss, quantized training simulates the effects of quantization during the training process. This allows the network to adapt to the lower precision representation. During training, weights and activations are quantized in the forward pass, but gradients are still computed and updated in floating-point.
 	
 	
 	\subsection{Low Rank Adaptation (LoRA)}
-	The core idea of Low-Rank Adaptation (LoRA) is rooted in the observation that the changes in a model's weights during adaptation to a new task often exhibit a low rank.
+	The core idea of Low-Rank Adaptation (LoRA) \cite{hu2021loralowrankadaptationlarge} is rooted in the observation that the changes in a model's weights during adaptation to a new task often exhibit a low rank.
 	This means that the updates to the weight matrices can effectively be represented by a much smaller set of basis vectors. LoRA leverages this property to significantly reduce the number of trainable parameters during adaptation. \\
 	Consider a \textbf{pre-trained weight matrix} $W \in \mathbb{R}^{d \times k}$ within a neural network layer, such as a fully connected layer or an attention head in a Transformer model. During adaptation, this weight matrix is typically updated through gradient descent, resulting in a change $\Delta W$. LoRA posits that $\Delta W$ can be approximated by a \textbf{low-rank decomposition}:
 	\begin{equation}
@@ -258,11 +257,11 @@
 		\frac{\partial L}{\partial c_k} = \frac{\partial L}{\partial a_i} \frac{\partial a_i}{\partial c_k} \text{ if $i$ is a checkpoint}
 	\end{gather}
 	
-	\section{LLaMAntino 3 8B Further Fine-Tuning}
-	The objective of this project is to test wether is possible to extend further the capabilities of LLaMAntino 3 model to generalize and handle Italian language tasks, such as chatting.
-	Since the adoption of already discussed optimization strategy has proved to be needed run this kind of model locally, we run some of the same benchmark proposed by the authors to check how these optimizations impact the overall model permanence. 
+	\section{LLaMAntino 3 8B: Further Fine-Tuning}
+	The objective of this project is to test whether it is possible to further extend the capabilities of the LLaMAntino 3 model to generalize and handle Italian language tasks, such as chatting.
+	Since the adoption of the optimization strategy discussed above has proved necessary to run this kind of model locally, we run some of the same benchmarks proposed by the authors to check how these optimizations impact the overall model performance. 
 	A description of those benchmarks is present in the appendix section.  
-	To save time, we choose to adopt a subset 0.20\% of the proposed datasets used by the benchmarks chosen by the authors.  
+	To save time, we chose to adopt a 0.20\% subset of the proposed datasets used by the authors for the chosen benchmarks.
 	
 	\begin{table*}[h]
 		\center
@@ -278,13 +277,39 @@
 	\end{table*}
 	
 	\subsection{Italian Wikipedia Dataset}
-	The first way we choose to try extend the model generalization capability and enhance its knowledge regarding the Italian language it to fine tune the model to the whole Italian Wikipedia dataset, available online. 
-	This first idea has been justified since part of this dataset - and its variants - has been commonly used in the training of successful LLMs like the Open AI's GPT family. The dataset we choose has roughly 1.83M rows with field such as title, text and url, more details can be found \href{https://huggingface.co/datasets/wikimedia/wikipedia/viewer/20231101.it}{here}.
+	The first way we chose to try to extend the model generalization capability and enhance its knowledge regarding the Italian language is to fine-tune the model on the whole Italian Wikipedia dataset, available online.
+	This first idea is justified since part of this dataset and its variants have been commonly used in the training of successful LLMs like OpenAI's GPT family. The dataset we chose has roughly 1.83M rows with fields such as title, text, and URL. More details can be found \href{https://huggingface.co/datasets/wikimedia/wikipedia/viewer/20231101.it}{here}.
 	
 	\subsubsection{Fine-Tuning process}
-	The fine-tuning has been made possible by the adoption of the optimizations described above and the overall fine-tuning for one epoch has took roughly 50 hours on a 8GB GPU.
-	We choose a LoRA rank ($r$) equal to 32, this allowed us to train roughly 83M parameters i.e. 8.3\% of the total model parameters. 
+	The fine-tuning was made possible by the adoption of the optimizations described above, and the overall fine-tuning for one epoch took roughly 50 hours on an 8GB GPU.
+	We chose a LoRA rank ($r$) equal to 32. This allowed us to train roughly 83M parameters, i.e., 8.3\% of the total model parameters.
+	If we take into account the hardware used, though this number may not appear significant, it is still a huge result comparing the consumer hardware we used and the enterprise hardware used to build and train the original model.
+		
+	\subsubsection{Perplexity Score}
+	\textbf{Perplexity} is a metric used to assess the performance of a language model (LM).	It measures how well the model predicts a sequence of tokens (e.g., words) by quantifying the uncertainty or "surprise" the model exhibits when encountering the sequence. Formally, given a sequence of tokens $X=(x_1,x_2,...,x_n)$, the perplexity (PP) of the language model on this sequence is calculated as:
+	\begin{equation}
+		\text{PPL}(X) = \text{exp}(-\frac{1}{N} \sum_{i=1}^{N} \log_2 P(x_i | x_{1:i-1}))
+	\end{equation}
+	Where: $P(x_i | x_{1:i-1})$ is the probability assigned by the model to the token $x_i$ given the preceding tokens $x_1,...,x_{i-1}$. In essence, perplexity is the exponentiated average negative log-likelihood of the sequence. A lower perplexity score indicates better performance, as it implies that the model assigns higher probabilities to the observed tokens, thus exhibiting less surprise.\\
+	To measure how the fine-tuning process has impacted the LLaMAntino 3 model we computed the perplexity score over a 0,01\% random sample of the Italian Wikipedia dataset. This is done to reduce the computational cost and correspond to extracting roughly 18k rows from the dataset.
+	We used a sliding window approach to process the tokenized text in smaller chunks. This is necessary because language models have limitations on the length of input sequences they can handle. Nevertheless, the size of input sequences directly affects memory consumption.
+	We choose a size of \textbf{64} for both the step size for the sliding window (stride) and the maximum length of each input sequence. This means there is no overlap between windows.
 	
+	\begin{table*}[h]
+		\center
+		\begin{tabular}{ccc}
+			\toprule
+			\textbf{LLaMA 3 8B} & \textbf{LLaMAntino 3 8B} & \textbf{Our Model} \\
+			\midrule
+			15.923903 & 18.758045 & 11.394022 \\
+			\bottomrule
+		\end{tabular}
+		\caption{\textbf{PPL measure on random under-sampled Wikipedia IT}}
+	\end{table*} 
+
+	The result shows how the performance of our fine-tuned model is superior to those obtained from both LLaMAntino 3 and LLAMA 3. It is worth noting that LLAMA 3 shows superior performance over LLaMAntino 3. Our hypothesis is that due to the extensive LLaMAntino 3 fine-tuning in different contexts, it has been biased toward a different language style and behavior.  
+	
+	\subsubsection{Common Benchmarks Scores}
 	\begin{table*}[h]
 		\center
 		\begin{tabular}{ccc}
@@ -298,13 +323,10 @@
 		\caption{\textbf{LLaMAntino 3, Full Wikipedia IT, $r=32$, $\alpha=8$}}
 	\end{table*} 
 	
-	Despite the resource employed there has been a sensible decrement of the chosen benchmark metrics. Our hypothesis is that due to the LoRA adaptation the number of trained parameter has not been sufficient. 
-	We have expected not to degrade the model performance at least for the ARC benchmark which is based on a grade-school level multiple-choice science questions, thus in our view such a fine-tune strategy should have improved the model on this field.
-	
-	\subsubsection{Perplexity}
+	Despite the resources employed, there has been a significant decrease in the chosen benchmark metrics. Our hypothesis is that the information and text in the Wikipedia IT dataset is not well suited for the benchmark chosen by the authors. However, we expected that the model performance would not degrade, at least for the ARC benchmark, which is based on grade-school-level, multiple-choice science questions.
 	
 	\subsection{Empirical results}
-	To gain a glimpse of how this fine-tune has changed the model we propose a set of prompts given to both non-tuned and tuned models. We have then preserved the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 256 tokens. \\
+	To gain a glimpse of how this fine-tuning has changed the model, we propose a set of prompts given to both non-tuned and tuned models. We have then preserved the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 256 tokens. \\
 	
 	\textbf{Wikipedia IT Fine-Tuned Model}:
 	\begin{enumerate}
@@ -496,19 +518,26 @@
 	\end{center}
 	
 	 
-	
 	\section{Conclusion}
-	Present your findings and data. Use tables and figures to illustrate your results.
+	In this project, we successfully fine-tuned a large language model for the Italian language using consumer hardware. We employed several optimization strategies, including 4-bit quantization, Low Rank Adaptation (LoRA), and gradient checkpointing, to make the fine-tuning process feasible on resource-constrained devices. Our fine-tuned model outperformed the original model on a perplexity test and showed a biased language style toward a more formal and scientific one. 
+	However, the fine-tuned model did not perform well on the INVALSI benchmark, which is a national reference test for the Italian education system. We hypothesize that this is due to the model's bias toward a more formal language style.
+	Future work could include the formalization of work done regarding the INVALSI benchmark in a well-defined and public available reference benchmark.
+	Another interesting way could be to develop an INVALSI dataset to instruct LLMs about Italian language comprehension. 
 	
 	\section*{Appendix}
 	
 	\appendix
 	
 	\section{ARC Dataset}
+	The ARC - \textbf{AI2 Reasoning Challenge} - dataset and benchmark serve as a critical tool for evaluating the reasoning abilities of Large Language Models (LLMs). This benchmark comprises 7,787 multiple-choice science questions sourced from standardized tests for grades 3-9.  These questions are categorized into an "Easy Set" and a "Challenge Set", the latter is designed to assess deeper reasoning skills.  \\
+	The ARC dataset focuses on evaluating an LLM's capacity to \textbf{integrate information} and \textbf{apply logical reasoning}, moving beyond simple factual recall.  It tests the model's understanding of various scientific concepts including \textbf{spatial reasoning}, \textbf{experimental interpretation}, \textbf{and cause-and-effect relationships}.  Performance on the ARC benchmark provides insights into an LLM's ability to handle complex scientific questions and solve problems that require multi-step inference, thus offering a valuable measure of its reasoning capabilities.
+	We used a machine-translated version \cite{dac2023okapi}.
 	
 	\section{HellaSwag Dataset}
+	The \textbf{HellaSwag} dataset is a benchmark designed to evaluate the commonsense reasoning capabilities of Language Models (LMs). It comprises 10,000 \textbf{multiple-choice questions}, where the model must select the most plausible ending to a given situation.  The dataset focuses on \textbf{everyday scenarios}, requiring the LM to understand implicit information and predict human-like behavior.  HellaSwag is particularly challenging for LMs because the incorrect answer choices are designed to be superficially plausible, demanding a deeper understanding of context and common sense to achieve high accuracy.  Performance on this benchmark is typically measured by the percentage of correctly answered questions, providing a quantitative assessment of an LM's ability to reason about real-world situations.
+	We used a machine-translated version \cite{dac2023okapi}.
 	
 	\bibliographystyle{plainnat}
-	\bibliography{references} % Replace "references" with the name of your .bib file
+	\bibliography{document.bib} % Replace "references" with the name of your .bib file
 	
 \end{document}
