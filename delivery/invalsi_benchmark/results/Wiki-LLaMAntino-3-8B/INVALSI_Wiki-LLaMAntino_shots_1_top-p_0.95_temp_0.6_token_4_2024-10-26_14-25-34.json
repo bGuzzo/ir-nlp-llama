@@ -1,0 +1,12 @@
+{
+    "ROUGE-1-mean-epoch-1": 0.17105263157894737,
+    "ROUGE-1-mean-epoch-2": 0.1743421052631579,
+    "Epochs": 2,
+    "Model name": "Wiki-LLaMAntino",
+    "Top-P": 0.95,
+    "Temperature": 0.6,
+    "Max new tokens": 4,
+    "Analyzed questions": 76.0,
+    "ROUGE-1 Mean Score": 0.1743421052631579,
+    "Few-Shots": 1
+}

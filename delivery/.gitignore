@@ -1,0 +1,4 @@
+*.safetensors
+*.zip
+*.pt
+*.bin

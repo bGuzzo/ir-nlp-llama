@@ -1,0 +1,14 @@
+[
+    {
+        "model_name": "LLaMAntino-3",
+        "ppl": 18.758045196533203
+    },
+    {
+        "model_name": "Llama-3",
+        "ppl": 15.923903465270996
+    },
+    {
+        "model_name": "checkpoint-57301",
+        "ppl": 11.394021987915039
+    }
+]

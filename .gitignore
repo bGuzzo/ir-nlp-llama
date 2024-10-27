@@ -167,3 +167,8 @@ cython_debug/
 /swap-uniba/**
 /models/llamantino_wiki_all_1/**
 /out_result
+
+*.safetensors
+*.zip
+*.pt
+*.bin
