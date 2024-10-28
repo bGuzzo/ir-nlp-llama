@@ -452,21 +452,7 @@
 	
 	
 	\section{Model Implementation}
-	We finally propose two implementation of our model, one as a chat-bot and the second in a RAG System in which it can extract information from a knowledge base of plain-text books and files. 
-	
-	\subsection{RAG Implementation}
-	\textbf{Retrieval-Augmented Generation} (RAG) is a powerful technique that enhances the capabilities of large language models (LLMs) by incorporating external knowledge sources. This approach addresses a fundamental limitation of LLMs: their reliance on the knowledge encoded within their parameters during training. By integrating external information, RAG systems can generate more accurate, informative, and contextually relevant responses, significantly improving the overall user experience. \\
-	Our implementation enrich the model knowledge using a library of plain-text files. Despite the possibility of using several documents and books, our implementation use only one book due to the limited VRAM availabe. However, it is capable of generating helpful information regarding the chosen topic. An example can be found below.
-	
-	\begin{center}
-		\fbox{\begin{minipage}{30em}
-			\textbf{Prompt}: Speiga in breve il primo canto della divina commedia. \\
-			\textbf{Response}: \textit{Il primo canto della Divina Commedia di Dante Alighieri è il canto in cui l'autore introduce il lettore nella sua opera, esortandolo a seguirlo nel viaggio verso il Paradiso terrestre e l'eternità. Il canto è anche l'unico nella Commedia in cui Dante si rivolge direttamente al lettore, esortandolo a partecipare alla sua esperienza di poeta, che ha come obiettivo la salvezza dell'anima.}		
-		\end{minipage}
-		}
-	\end{center}
-	
-	Retrieval-Augmented Generation is a promising approach that significantly enhances the capabilities of large language models. As research in this area continues to advance, we can expect RAG systems to play an increasingly important role in the development and deployment of AI-powered solutions.
+	We finally propose two implementation of our model, one as a chat-bot and the other as enhanced chat-bot with a RAG System based on Italian literature documents.  
 	
 	\subsection{Chat-Bot Implementation}
 	LLMs can also be used as a \textbf{chat-bot} to help and entertain the user while providing quick and comprehensible information. This is especially important in context such as voice assistant and customer assistance. We propose a chat-bot based on our fine-tuned model capable of entertain a semi-real-time conversation about different topics. \\
@@ -474,19 +460,19 @@
 	
 	\begin{center}
 		\fbox{\begin{minipage}{30em}
-			Sei un chatbot di nome "Leonardo", un modello linguistico di grandi dimensioni. 
-			\\\\
-			Personalità:\\
-			Sei gentile, educato e disponibile con gli utenti. \\
-			...\\\\
-			Obiettivo:\\
-			Il tuo obiettivo principale è intrattenere e conversare con gli utenti su una vasta gamma di argomenti. Puoi:\\
-			Rispondere a domande\\
-			...\\\\
-			Esempio 1: \\
-			Utente: Ciao! Come ti chiami? \\
-			Leonardo: Ciao! Mi chiamo Leonardo, piacere di conoscerti! Come posso aiutarti oggi? \\\\
-			Esempio 2: ...
+				Sei un chatbot di nome "Leonardo", un modello linguistico di grandi dimensioni. 
+				\\\\
+				Personalità:\\
+				Sei gentile, educato e disponibile con gli utenti. \\
+				...\\\\
+				Obiettivo:\\
+				Il tuo obiettivo principale è intrattenere e conversare con gli utenti su una vasta gamma di argomenti. Puoi:\\
+				Rispondere a domande\\
+				...\\\\
+				Esempio 1: \\
+				Utente: Ciao! Come ti chiami? \\
+				Leonardo: Ciao! Mi chiamo Leonardo, piacere di conoscerti! Come posso aiutarti oggi? \\\\
+				Esempio 2: ...
 			\end{minipage}
 		}
 	\end{center}
@@ -516,6 +502,64 @@
 			\end{minipage}
 		}
 	\end{center}
+	
+	\subsection{Chat-Bot \& RAG Implementation}
+	
+	\subsubsection{Retrieval-Augmented Generation}
+	Retrieval-augmented generation (RAG) is a technique used in natural language processing (NLP) to enhance the performance of language models, particularly on knowledge-intensive tasks. It involves integrating an external knowledge source, such as a knowledge base or a document collection, into the generation process. 
+	In RAG, the language model is augmented with a retrieval component that can access and retrieve relevant information from the external knowledge source. This retrieved information is then used to condition the language model's output, improving its ability to generate accurate, informative, and contextually relevant text. 
+	
+	\begin{itemize}
+		\item \textbf{Input Encoding}: The input text is encoded into a vector representation using a language model.
+		\item \textbf{Retrieval}: The encoded input is used to query the external knowledge source and retrieve relevant information.
+		\item \textbf{Contextualization}: The retrieved information is combined with the encoded input to create a context-aware representation.
+		\item \textbf{Generation}: The language model uses the context-aware representation to generate the output text.
+	\end{itemize}
+	
+	RAG has been successfully applied to various NLP tasks, including open-domain question answering, dialogue generation, and text summarization. It has been shown to improve the factuality, specificity, and diversity of generated text, while reducing the occurrence of hallucinations or irrelevant information.
+	
+	\subsubsection{Our Implementation}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=13cm]{Chat_RAG}
+		\caption{\textbf{Chat-Bot LLM With RAG} - System Design}
+	\end{figure}
+	
+	Our implementation expand the RAG concept applying it to a conversational chat-bot. This allow our system to effectively retrieve useful information form documents and use it to answer domain-specific questions. 
+	When user submits a new prompt to the model we first use it to find and retrieve domain-specific information. Then, we obtain the complete model input prompt by stacking the found information (context) above the user prompt.
+	This helps the model to understand a complex context prior analyzing the real user prompt.
+	To gain a detailed picture of our system, we now describe each component in detail.
+	
+	\begin{itemize}
+		\item \textbf{Documents}: Our implementation adopt a plain-text file collection as knowledge base for time saving. Though, this could be extended to other information source, such as PDF, web pages and databases.  
+		
+		\item \textbf{Embedding Model}: A text embedding model is a mathematical construct that transforms textual data into numerical vector representations. These vectors, often referred to as embeddings, encapsulate the semantic meaning and contextual nuances of the input text, enabling machines to effectively understand and process human language. Nowadays, the state-of-the-art embedding models leverages deep neural network architecture such as BERT \cite{devlin2019bertpretrainingdeepbidirectional} or Transformer \cite{vaswani2023attentionneed} to effectively map text to vectors.
+		In this RAG system we adopt the \textbf{paraphrase-multilingual-MiniLM-L12-v2} model which is a student-distilled multi-language fine-tuned version of \textbf{paraphrase-MiniLM-L12-v2} \cite{wang2020minilmdeepselfattentiondistillation}.
+		The chosen model uses \textbf{BERT} architecture to map sentences and paragraphs to a 384 dimensional dense vector space. Extensive empirical experimentation has led us to this decision. 
+		
+		\item \textbf{FAISS Vector Storage}: To retrieve query-related text is essential to store the embedding vectors in a time-and-resource-efficient way. In our proposed implementation we adopted \textbf{FAISS} \cite{douze2024faisslibrary}. It is a library for performing similarity search on a collection of vectors.  It was developed by Facebook AI Research and is written in C++ with a Python interface.  Faiss supports a wide range of similarity search methods, including brute-force search, k-means clustering, and product quantization.  It also provides tools for indexing, compressing, and transforming vectors. Nonetheless, FAISS is designed to be highly optimized and can achieve state-of-the-art performance even when running only on a CPU based system. 
+		Due to the hardware constraint this has proven to be a crucial point in our implementation. This allows us to avoid VRAM OOM errors by delegating the text retrieval operations to CPU only granting the LLM unrestricted access to the GPU and its VRAM.
+		
+		\item \textbf{Retriever}: We then implemented a text retriever leveraging the popular \href{https://python.langchain.com/docs/introduction/}{\textbf{LangChain}} Python framework. It streamlines the process of building LLM-centric applications by providing modular components, integrations, and tools for the entire development life-cycle. This is the key competent of our RAG system.
+		A given user query is mapped to a vector space - according to the chosen embedding model - then the most similar text is retrieved according to a defined similarity threshold (0.5 in our case). 
+		
+		\item \textbf{Context stacking}: Finally, the retrieved text is added above the user query marking it with 'context' key-word to help the model identify additional information. We also provided precise instruction regarding what input structure the model should expect in the system prompt.
+		In our implementation we also truncate the retrieved text according to a user-fined threshold. This prevent model overload and hallucination.
+		
+	\end{itemize}
+
+	\subsubsection{Simple Use Case}
+	Our proposed system implementation comes with 
+	
+	\begin{center}
+		\fbox{\begin{minipage}{30em}
+			\textbf{Prompt}: Speiga in breve il primo canto della divina commedia. \\
+			\textbf{Response}: \textit{Il primo canto della Divina Commedia di Dante Alighieri è il canto in cui l'autore introduce il lettore nella sua opera, esortandolo a seguirlo nel viaggio verso il Paradiso terrestre e l'eternità. Il canto è anche l'unico nella Commedia in cui Dante si rivolge direttamente al lettore, esortandolo a partecipare alla sua esperienza di poeta, che ha come obiettivo la salvezza dell'anima.}		
+		\end{minipage}
+		}
+	\end{center}
+	
 	
 	 
 	\section{Conclusion}

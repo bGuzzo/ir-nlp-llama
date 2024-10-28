@@ -39,8 +39,6 @@ model_kwargs = {"device": "cpu"}
 sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 maps sentences & paragraphs to a 384 dimensional 
 dense vector space and can be used for tasks like clustering or semantic search.
 
-It implements Sentence-BERT (SBERT), a modification of the pre-trained BERT network.
-
 HF Reference: https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 Paper Reference (Sentence-BERT): https://arxiv.org/abs/1908.10084
 """
