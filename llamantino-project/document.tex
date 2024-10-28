@@ -532,7 +532,7 @@
 	To gain a detailed picture of our system, we now describe each component in detail.
 	
 	\begin{itemize}
-		\item \textbf{Documents}: Our implementation adopt a plain-text file collection as knowledge base for time saving. Though, this could be extended to other information source, such as PDF, web pages and databases.  
+		\item \textbf{Documents}: Our implementation adopt a plain-text file collection as knowledge base for time saving. Though, this could be extended to other information source, such as PDF, web pages and databases. To assess the quality of our implementation we propose a small set of three text documents about Italian literature. The text inside this document has been generated using Gemini Flash 1.5. Despite this limitation it is still well appreciable how the final RAG system retrieve and process information.  
 		
 		\item \textbf{Embedding Model}: A text embedding model is a mathematical construct that transforms textual data into numerical vector representations. These vectors, often referred to as embeddings, encapsulate the semantic meaning and contextual nuances of the input text, enabling machines to effectively understand and process human language. Nowadays, the state-of-the-art embedding models leverages deep neural network architecture such as BERT \cite{devlin2019bertpretrainingdeepbidirectional} or Transformer \cite{vaswani2023attentionneed} to effectively map text to vectors.
 		In this RAG system we adopt the \textbf{paraphrase-multilingual-MiniLM-L12-v2} model which is a student-distilled multi-language fine-tuned version of \textbf{paraphrase-MiniLM-L12-v2} \cite{wang2020minilmdeepselfattentiondistillation}.
@@ -542,24 +542,36 @@
 		Due to the hardware constraint this has proven to be a crucial point in our implementation. This allows us to avoid VRAM OOM errors by delegating the text retrieval operations to CPU only granting the LLM unrestricted access to the GPU and its VRAM.
 		
 		\item \textbf{Retriever}: We then implemented a text retriever leveraging the popular \href{https://python.langchain.com/docs/introduction/}{\textbf{LangChain}} Python framework. It streamlines the process of building LLM-centric applications by providing modular components, integrations, and tools for the entire development life-cycle. This is the key competent of our RAG system.
-		A given user query is mapped to a vector space - according to the chosen embedding model - then the most similar text is retrieved according to a defined similarity threshold (0.5 in our case). 
+		A given user query is mapped to a vector space - according to the chosen embedding model - then the most similar text is retrieved according to a defined similarity threshold (0.45 in our case). 
 		
 		\item \textbf{Context stacking}: Finally, the retrieved text is added above the user query marking it with 'context' key-word to help the model identify additional information. We also provided precise instruction regarding what input structure the model should expect in the system prompt.
 		In our implementation we also truncate the retrieved text according to a user-fined threshold. This prevent model overload and hallucination.
 		
 	\end{itemize}
 
-	\subsubsection{Simple Use Case}
-	Our proposed system implementation comes with 
+	\subsubsection{Empirical results}
+	We finally show below a brief conversation between human user and our RAG System.
 	
 	\begin{center}
 		\fbox{\begin{minipage}{30em}
-			\textbf{Prompt}: Speiga in breve il primo canto della divina commedia. \\
-			\textbf{Response}: \textit{Il primo canto della Divina Commedia di Dante Alighieri è il canto in cui l'autore introduce il lettore nella sua opera, esortandolo a seguirlo nel viaggio verso il Paradiso terrestre e l'eternità. Il canto è anche l'unico nella Commedia in cui Dante si rivolge direttamente al lettore, esortandolo a partecipare alla sua esperienza di poeta, che ha come obiettivo la salvezza dell'anima.}		
-		\end{minipage}
+				\textbf{User}: Ciao\\
+				\textbf{RAG}: \textit{Ciao! Sono Formal-LLaMAntino-3, un an assistente AI per la lingua italiana. Sono qui per aiutarti con le tue domande e per discutere con te. Spero di poterti aiutare!}	\\\\
+				\textbf{User}: Spiega la Divina Commedia\\
+				\textbf{RAG}: \textit{La Divina Commedia, composta da Dante Alighieri tra il 1308 e il 1321, è una grande opera di letteratura medievale, di tipo epico e allegorico, che narra il viaggio spirituale dell'autore attraverso l'Inferno, il Purgatorio e il Paradiso. L'opera è suddivisa in tre cantiche, ognuna delle quali rappresenta un "regno" dell'aldilà, dove sono rappresentati i peccati e le anime dei defunti. Il viaggio dell'autore...}	\\\\
+				\textbf{User}: Cosa succede nell'inferno?\\
+				\textbf{RAG}: \textit{Nell'Inferno di Dante, il viaggio dell'autore attraverso l'aldilà è condotto da Virgilio, che ne spiega i misteri. Ognuno dei nove cerchi rappresenta un peccato e la sua conseguente punizione. La punizione dei peccati è disposta in modo da essere sempre più grave nel suo avanzare. I peccati più leggeri, come quelli dei lussuriosi e dei golosi, sono puniti da una sola tenebra, mentre quelli più gravi, come qu...}	
+			\end{minipage}
 		}
 	\end{center}
 	
+	It is clear how well our implementation provide useful information relying on the provided documents set while performing a solid context understanding. 
+	As has been widely discussed, even in this case, the chat-bot shows a formal language learned through the initial fine-tuning process.
+	
+	\subsubsection{Improvements}
+	An interesting improvement - that could potentially lead to even better results - is using the entire chat history as query for the retriever system in order to find important information regarding older messages. 
+	This should help the model gain a deep understanding of the current context. 
+	Though, it must be considered that older messages could refer to different arguments and sharing nothing with the current conversation topic.  
+	Nonetheless, such implementation would require a substantial amount of VRAM due to the huge increase in prompt length that must be computed.
 	
 	 
 	\section{Conclusion}

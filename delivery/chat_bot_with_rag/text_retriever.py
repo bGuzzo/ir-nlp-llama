@@ -55,7 +55,7 @@ HF Embedding return the distance, invert it to abtain a valid similarity measure
 """
 def relevance_score_fn(distance: float) -> float:
     norm_score = 1.0 / (1.0 + abs(distance))
-    logger.debug(f"Distance: {distance}, Score: {norm_score}")
+    logger.info(f"Distance: {distance}, Score: {norm_score}")
     return norm_score
 
 
@@ -72,7 +72,7 @@ db = FAISS.from_documents(docs, embeddings, relevance_score_fn=relevance_score_f
 # Create retriever with 0.5 threshold to avoid capture useless information
 retriever = db.as_retriever(
     search_type="similarity_score_threshold", 
-    search_kwargs={"score_threshold": 0.5}
+    search_kwargs={"score_threshold": 0.45}
 )
 
 logger.info("FAISS Retriever ready")
