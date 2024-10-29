@@ -72,7 +72,7 @@ db = FAISS.from_documents(docs, embeddings, relevance_score_fn=relevance_score_f
 # Create retriever with 0.5 threshold to avoid capture useless information
 retriever = db.as_retriever(
     search_type="similarity_score_threshold", 
-    search_kwargs={"score_threshold": 0.45}
+    search_kwargs={"score_threshold": 0.5}
 )
 
 logger.info("FAISS Retriever ready")

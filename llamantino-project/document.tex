@@ -26,15 +26,15 @@
 	
 	\begin{abstract}
 		This project delves into the fine-tuning of a large language model (LLMs) for enhanced Italian language proficiency. 
-		By employing 4-bit quantization, gradient checkpointing, and low-rank adaptation,we efficiently fine-tune the model on consumer hardware using a well-established Italian dataset.. 
+		By employing 4-bit quantization, gradient checkpointing, and low-rank adaptation,we efficiently fine-tune the model on consumer hardware using a well-established Italian dataset.
 		This method enables us to optimize the model's performance while minimizing computational overhead.
 		To assess the impact of our fine-tuning strategy, we conduct a comprehensive evaluation using a series of Italian benchmarks, including those for question answering, commonsense reasoning, and natural language understanding.
-		The project further explores the potential of incorporating a Retrieval-Augmented Generation (RAG) approach, based on a curated collection of Italian literature and novels.
+		The project further explores the potential of incorporating a Retrieval-Augmented Generation (RAG) with chat-bot approach.
 	\end{abstract}
 	
 	\section{Introduction}
 		Large Language Models (LLMs) have rapidly emerged as a transformative force in the field of artificial intelligence, demonstrating remarkable capabilities in understanding and generating human-like text. 
-		These models, trained on massive datasets of text and code, leverage deep learning techniques to learn complex patterns and relationships within natural language. 
+		These models, trained on massive datasets of text, leverage deep learning techniques to learn complex patterns and relationships within natural language. 
 		At the core of their architecture lie several fundamental components:
 		
 		\begin{itemize}
@@ -42,14 +42,13 @@
 			
 			\item \textbf{Embedding}: Each token is then converted into a numerical vector, or embedding, which captures its semantic meaning in a high-dimensional space. This representation allows the model to understand relationships between words and their contextual significance.
 			
-			\item \textbf{Attention Mechanism}: This innovative mechanism, introduced in the seminal paper "Attention is All You Need" (Vaswani et al., 2017), enables the model to weigh the importance of different parts of the input sequence when processing information. This allows LLMs to effectively capture long-range dependencies and contextual nuances in text, a significant advancement over previous sequential models.
+			\item \textbf{Attention Mechanism}: This innovative mechanism, introduced in the paper "Attention is All You Need" \cite{vaswani2023attentionneed}, enables the model to weigh the importance of different parts of the input sequence when processing information. This allows LLMs to effectively capture long-range dependencies and contextual nuances in text, a significant advancement over previous sequential models.
 			
-			\item \textbf{Transformers}: The dominant architecture for LLMs, transformers consist of multiple layers of self-attention and feed-forward neural networks. This structure allows for parallel processing of information, making them highly efficient and scalable for handling large datasets.
+			\item \textbf{Transformers}: The dominant architecture for LLMs, transformers consist of multiple layers of \textbf{self-attention} and feed-forward neural networks. This structure allows for parallel processing of information, making them highly efficient and scalable for handling large datasets.
 		\end{itemize}	
 		
 		The evolution of LLMs over the past decade has been marked by significant advancements in model size, training data, and architectural innovations. 
 		Early models, such as recurrent neural networks (RNNs) and long short-term memory (LSTM) networks, faced limitations in capturing long-range dependencies and processing large amounts of data. 
-		The introduction of the transformer architecture revolutionized the field, enabling the development of models with billions of parameters.
 		These models have demonstrated impressive capabilities in various tasks, including text generation, translation, question answering, and code generation, sparking widespread interest and research in both academia and industry.
 		
 	\section{The Base Model: Meta LLaMA}
@@ -60,14 +59,12 @@
 			\caption{LLaMA model architecture}
 		\end{figure}
 		
-		The LLaMA models \cite{touvron2023llamaopenefficientfoundation} is a series of large language models (LLMs) ranging from 7B to 65B parameters, trained on trillions of tokens. 
-		The goal of LLaMA is to achieve the best possible performance at various inference budgets.
-		The model architecture is based on the transformer architecture, with the following modifications:
+		The LLaMA models \cite{touvron2023llamaopenefficientfoundation} are a series of large language models (LLMs) ranging from 7B to 65B parameters, trained on trillions of tokens. The model architecture is based on the transformer architecture, with the following modifications:
 		
 		\begin{itemize}
 		
 			\item 
-				\textbf{Pre-normalization}: The input of each transformer sub-layer is normalized, rather than normalizing the output. The \textbf{RMSNorm} normalizing function \cite{zhang2019rootmeansquarelayer} is used. RMSNorm simplifies the LayerNorm (used by transfomer) by removing the re-centering operation, relying only on re-scaling. It normalizes the summed inputs to a neuron using the Root Mean Square (RMS) statistic.
+				\textbf{Pre-normalization}: The input of each transformer sub-layer is normalized, rather than normalizing the output. The \textbf{RMSNorm} normalizing function \cite{zhang2019rootmeansquarelayer} is used. RMSNorm simplifies the LayerNorm (used by transformer) by removing the re-centering operation, relying only on re-scaling. It normalizes the summed inputs to a neuron using the Root Mean Square (RMS) statistic.
 				\begin{align}\label{eq_rmsnorm}
 					\begin{split}
 						& \bar{a}_i = \frac{a_i}{\text{RMS}(\mathbf{a})} g_i, \quad \text{where}~~ \text{RMS}(\mathbf{a}) = \sqrt{\frac{1}{n} \sum_{i=1}^{n} a_i^2}.
@@ -91,7 +88,7 @@
 				SwiGLU is \textbf{non-monotonic}, this allows it to capture complex non-linear relationships between input and output.
 			
 			\item 
-				\textbf{Rotary Position Embeddings}: Absolute positional embeddings are removed, and instead rotary positional embeddings (RoPE)  \cite{su2023roformerenhancedtransformerrotary} are used at each layer of the network to compute query and key. \textbf{RoPE} is based on the idea of using a rotation matrix to control the inner product between query and value vectors.
+				\textbf{Rotary Position Embeddings}: Absolute positional embeddings are removed, and instead rotary positional embeddings (RoPE)  \cite{su2023roformerenhancedtransformerrotary} are used at each layer of the network to compute query and key. \textbf{RoPE} is based on the idea of using a rotation matrix to control the inner product between query and value vectors. \\
 				Let $x_m \in \mathbb{R}^d$ and $x_n \in \mathbb{R}^d$ be two word embeddings at positions $m$ and $n$, respectively. Let $q_m$ and $k_n$ be the corresponding query and key vectors. RoPE encodes the relative position information by rotating $q_m$ and $k_n$ by an angle that is proportional to $m-n$. The rotated vectors are then used to compute the inner product. Then, \textbf{the rotation matrix} is defined as follows: 
 				\begin{equation}
 					\scalemath{0.75}{
@@ -115,7 +112,7 @@
 					\label{q_k_inner_product}
 				\end{equation}
 				Where $R_{\Theta,n-m}^{d} = (R_{\Theta,m}^{d})^T R_{\Theta,n}^{d}$. \\
-				This inner product decays with increasing relative distance $|m - n|$. This is due to the rotation matrix $R_{\Theta,n-m}^{d}$ becoming more diagonal and thus decreasing the overall cosine value of the angel between $q$ and $k$ vectors.
+				This inner product decays with increasing relative distance $|m - n|$. This is due to the rotation matrix $R_{\Theta,n-m}^{d}$ becoming more diagonal and thus decreasing the overall cosine value of the angle between $q$ and $k$ vectors.
 				
 				
 		\end{itemize}
@@ -138,7 +135,6 @@
 	\section{LLaMA 3}	
 		LLaMA \cite{dubey2024llama3herdmodels} 3 is a series of large language models (LLMs) developed by Meta AI. It is the successor to the LLaMA model, featuring significant enhancements in terms of scale, performance, and capabilities. A key improvement from LLaMA to LLaMA 3 is the adoption of the \textbf{Grouped Query Attention} (GQA). It is a type of attention mechanism that groups the queries into a smaller number of groups where each group shares a single key and value. This strategy reduces the number of attention weights that need to be computed leading to faster training and computation.
 		
-	
 		\begin{table*}[h]
 			\center
 			\begin{tabular}{ |p{4cm}|p{4cm}|p{4cm}| }
@@ -169,14 +165,14 @@
 		This process involves \textbf{Supervised Fine-Tuning} (SFT) and \textbf{Direct Preference Optimization} (DPO). SFT is conducted on a mixture of human-annotated and synthetically-generated data, while DPO utilizes human-annotated preference data.
 		
 	\section{LLaMAntino 3 8B}
-	\textbf{LLaMAntino 3 8B} 'ANITA' \cite{polignano2024advanced} is Italian language LLM based on the Meta's LLaMA 3 8 billion parameters model. It is developed and maintained by the \textbf{SWAP Team} of the Bari University, Italy. It is fine-tuned using a combination of \textbf{Supervised Fine-Tuning} (SFT) and \textbf{Dynamic Preference Optimization} (DPO) to achieve superior performance in the Italian language. \\
+	\textbf{LLaMAntino 3 8B} 'ANITA' \cite{polignano2024advanced} is Italian language LLM based on the Meta's LLaMA 3 8 billion parameters model. It is developed and maintained by the \textbf{SWAP Team} of the Bari University, Italy. It is fine-tuned using a combination of \textbf{Supervised Fine-Tuning} (SFT) and \textbf{Direct Preference Optimization} (DPO) to achieve superior performance in the Italian language. \\
 	The fine-tuning process involved two main steps: 
 	
 	\begin{itemize}
 		\item 
 			\textbf{Model Supervised Fine-Tuning}: The starting point is the \textbf{meta-llama/Meta-Llama-3-8B-Instruct} model, an instruction tuned version of the base LLaMa 3 8B model. 
 			Then, it has been fine-tuned using a dataset named \textbf{Chat-Error/wizard\_alpaca\_dolly\_orca}, this dataset is a combination of three well-known datasets: WizardLM\_Orca, Dolly-v2\_Orca, and Alpaca\_Orca. 
-			It consists of 100K prompts organized into system, instruction, input, and output fields in English language.	The model was fine-tuned using the \textbf{Unsloth framework} on an NVIDIA H100 64GB GPU card.
+			It consists of 100K prompts organized into system, instruction, input, and output fields in English language.	The model was fine-tuned using the \href{https://docs.unsloth.ai/}{\textbf{Unsloth framework}} on an NVIDIA H100 64GB GPU card.
 		
 		\item 
 			\textbf{Model Direct Preferences Optimization}: After SFT, DPO was applied to align the model's outputs with human preferences. For this purpose, the \textbf{mlabonne/orpo-dpo-mix-40k} dataset has been used, which contains approximately 40k examples from various sources like \textbf{Capybara-Preferences}, \textbf{distilabel-intel-orca-dpo-pairs}, and \textbf{ultrafeedback\\-binarized-preferences-cleaned}.
@@ -204,7 +200,7 @@
 	\end{table*}  
 
 	\section{Optimizations}
-	Prior to running fine-tuning experiments on LLaMAntino 3 model various optimization strategy is needed. This strategies ensure that the model can run and train on a consumer based hardware without causing out of memory errors or being too slow. 
+	Prior to running fine-tuning experiments on the LLaMAntino 3 model various optimization strategy is needed. This strategies ensure that the model can run and train on a consumer based hardware without causing out of memory errors (OOM) or being too slow. 
 	The optimization strategy used is the following.
 	
 	\subsection{Quantization}  
@@ -213,7 +209,6 @@
 		r=S(q-Z)
 	\end{equation}
 	Where \textbf{r} is the real value, \textbf{q} is the quantized value, \textbf{S} is the scale factor and \textbf{Z} is the zero-point. To minimize accuracy loss, quantized training simulates the effects of quantization during the training process. This allows the network to adapt to the lower precision representation. During training, weights and activations are quantized in the forward pass, but gradients are still computed and updated in floating-point.
-	
 	
 	\subsection{Low Rank Adaptation (LoRA)}
 	The core idea of Low-Rank Adaptation (LoRA) \cite{hu2021loralowrankadaptationlarge} is rooted in the observation that the changes in a model's weights during adaptation to a new task often exhibit a low rank.
@@ -232,7 +227,7 @@
 	By training only the low-rank matrices, the number of trainable parameters is significantly reduced, leading to \textbf{substantial memory savings}.
 	
 	\subsection{Gradient Checkpointing}  
-	Gradient checkpointing is a technique used to reduce the memory consumption of deep neural network training. 
+	Gradient checkpointing \cite{chen2016trainingdeepnetssublinear} is a technique used to reduce the memory consumption of deep neural network training. 
 	It is based on the idea that instead of storing all intermediate activations of a neural network during the forward pass, only a subset of these activations need to be stored.
 	The remaining activations can be recomputed during the backward pass, thereby trading off computation time for memory savings.
 	Let's consider a neural network with $n$ layers. We can denote the activations of the network at layer $i$ as $a_i$. The forward pass of the network can be written as:
@@ -282,19 +277,20 @@
 	
 	\subsubsection{Fine-Tuning process}
 	The fine-tuning was made possible by the adoption of the optimizations described above, and the overall fine-tuning for one epoch took roughly 50 hours on an 8GB GPU.
-	We chose a LoRA rank ($r$) equal to 32. This allowed us to train roughly 83M parameters, i.e., 8.3\% of the total model parameters.
+	We chose a LoRA rank ($r$) equal to 32. This allowed us to train roughly 83M parameters, i.e., \textbf{8.3\%} of the total model parameters.
 	If we take into account the hardware used, though this number may not appear significant, it is still a huge result comparing the consumer hardware we used and the enterprise hardware used to build and train the original model.
+	We also reduced the input sequence length to just \textbf{32 tokens}, this has proven to be necessary to avoid OOM errors. Due to such length reduction, the model has been fine-tuned only on the headlines of Wikipedia articles.  
 		
 	\subsubsection{Perplexity Score}
-	\textbf{Perplexity} is a metric used to assess the performance of a language model (LM).	It measures how well the model predicts a sequence of tokens (e.g., words) by quantifying the uncertainty or "surprise" the model exhibits when encountering the sequence. Formally, given a sequence of tokens $X=(x_1,x_2,...,x_n)$, the perplexity (PP) of the language model on this sequence is calculated as:
+	\textbf{Perplexity} is a metric used to assess the performance of a language model (LM).	It measures how well the model predicts a sequence of tokens (e.g., words) by quantifying the \textbf{uncertainty} or "surprise" the model exhibits when encountering the sequence. Formally, given a sequence of tokens $X=(x_1,x_2,...,x_n)$, the perplexity (PPL) of the language model on this sequence is calculated as:
 	\begin{equation}
 		\text{PPL}(X) = \text{exp}(-\frac{1}{N} \sum_{i=1}^{N} \log_2 P(x_i | x_{1:i-1}))
 	\end{equation}
-	Where: $P(x_i | x_{1:i-1})$ is the probability assigned by the model to the token $x_i$ given the preceding tokens $x_1,...,x_{i-1}$. In essence, perplexity is the exponentiated average negative log-likelihood of the sequence. A lower perplexity score indicates better performance, as it implies that the model assigns higher probabilities to the observed tokens, thus exhibiting less surprise.\\
+	Where: $P(x_i | x_{1:i-1})$ is the probability assigned by the model to the token $x_i$ given the preceding tokens $x_1,...,x_{i-1}$. In essence, perplexity is the exponentiation of average negative log-likelihood of the sequence. A \textbf{lower perplexity} score indicates better performance, as it implies that the model assigns higher probabilities to the observed tokens, thus exhibiting less surprise.\\
 	To measure how the fine-tuning process has impacted the LLaMAntino 3 model we computed the perplexity score over a 0,01\% random sample of the Italian Wikipedia dataset. This is done to reduce the computational cost and correspond to extracting roughly 18k rows from the dataset.
-	We used a sliding window approach to process the tokenized text in smaller chunks. This is necessary because language models have limitations on the length of input sequences they can handle. Nevertheless, the size of input sequences directly affects memory consumption.
-	We choose a size of \textbf{64} for both the step size for the sliding window (stride) and the maximum length of each input sequence. This means there is no overlap between windows.
-	
+	We used a sliding window approach to process the tokenized text in smaller chunks. This is necessary because language models have limitations on the length of input sequences they can handle. Nevertheless, the size of input sequence directly affects memory consumption.
+	We choose a size of \textbf{64} for both step size for the \textbf{sliding window} (stride) and the \textbf{maximum length} of each input sequence. This means there is \textbf{no overlap} between windows.
+
 	\begin{table*}[h]
 		\center
 		\begin{tabular}{ccc}
@@ -326,7 +322,7 @@
 	Despite the resources employed, there has been a significant decrease in the chosen benchmark metrics. Our hypothesis is that the information and text in the Wikipedia IT dataset is not well suited for the benchmark chosen by the authors. However, we expected that the model performance would not degrade, at least for the ARC benchmark, which is based on grade-school-level, multiple-choice science questions.
 	
 	\subsection{Empirical results}
-	To gain a glimpse of how this fine-tuning has changed the model, we propose a set of prompts given to both non-tuned and tuned models. We have then preserved the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 256 tokens. \\
+	To gain a glimpse of how this fine-tuning has changed the model, we propose a set of prompts given to both non-tuned and tuned model. We have then preserved the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 256 tokens. \\
 	
 	\textbf{Wikipedia IT Fine-Tuned Model}:
 	\begin{enumerate}
@@ -363,7 +359,7 @@
 	\end{enumerate}
 
 	\subsection{Conclusion}
-	The evidence suggests that the fine-tuned model has a \textbf{biased language style} toward a more formal and scientific one, as the one used in the Wikipedia pages. It is of particular note that even for the tasks where creativity and informality are required - e.g. prompt 1 and 2 - the fine-tuned model tend to preserve a more \textbf{comprehensible} and \textbf{semi-formal language}. \\
+	The evidence suggests that the fine-tuned model has a \textbf{biased language style} toward a more formal and scientific one, as the one used in the Wikipedia pages. It is of particular note that even for the tasks where creativity and informality are required - e.g. prompt 1 and 2 - the fine-tuned model tend to preserve a more \textbf{comprehensible} and \textbf{formal language}. 
 	We can further infer that the original training set must have included a collection of creative and informal Italian novels.
 	It is noteworthy as well that for the scientific tasks - i.e. prompt 3 - the fine-tuned model tend to follow a more \textbf{discursive pattern} where the original model tend to \textbf{break the information} in small chunks. 
 	Thus, the fine-tuned model is capable of generating text like the one we can found in scientific and academic books. 	
@@ -371,142 +367,147 @@
 		
 	\section{Testing Italian LLMs using INVALSI}
 	Testing the language comprehension of an LLM is no easy task, particularly when we are dealing with numerous possible tasks. One way to test the general capability of a language model to comprehend a given language is to use the national reference test for the education system. For the Italian language, such a test are developed by INVALSI each year to test the ability of middle and high school Italian students. 
-	In our case we choose to develop a small benchmark of \textbf{80 Italian language comprehension questions} extracted form the INVALSI tests of the years 2008, 2009 and 2010 for the middle school.The final dataset include three JSON file - each per year - containing a list of object with information regarding the context and a list of questions with the real answer.
-	The process of extracting the text, questions and answers has been done using \textbf{Google Gemini Flash} by providing a custom prompt and the original INVALSI file.  
+	In our case we choose to develop a small benchmark of \textbf{76 Italian language comprehension multiple-choice questions} extracted form INVALSI tests of the years 2008, 2009 and 2010 for the middle school. The final dataset include three JSON file containing a list of object with information regarding the context and a list of questions with the real answer.
+	The process of extracting the context, questions and answers has been done using \textbf{Google Gemini Flash 1.5} by providing a custom prompt and the original INVALSI file.  
 
-	\subsection{Prompt And Metrics}
-	Each question is feed into the model by defining a custom prompt which include some basics instruction, the context and the question.
-	\begin{center}
-	\fbox{\begin{minipage}{25em}
-		\textbf{Informazioni}: \textit{Rispondi alla seguente domanda di italiano. \\
-		Per domande a scelta multipla rispondi indicando esclusivamente la lettera. \\
-		Ad esempio: A, B o C. \\
-		Per le domande aperte rispondo i modo breve e conciso.} \\
-		\\
-		\textbf{Contesto}: \textit{\{test\_context\}} \\
-		\\
-		\textbf{Domanda}: \textit{\{test\_question\}}
-	\end{minipage}
-	}
-	\end{center}
-	Doing so each questions carries the right context and it is isolated from the others esuring no bias between the questions.
+	\subsection{Metric Extraction}
+	Each question is feed into the model by defining a custom prompt which include some basics instruction, context and question.
+	Doing so each questions carries the right context and it is isolated from the others ensuring no bias between the questions.
 	The model generated response is evaluated by comparing it to the real one using the \textbf{ROUGE-1} metric (precision), then we extract the mean of this value across all the questions.
 	We also used a \textbf{multi-run strategy}, this means that the final metric is the mean of the metrics obtained with multiple benchmark run with the same parameters. This allow us to stabilize the overall metrics by reducing the impact of model randomness. Typically, we use two to three run epochs for this benchmark. 
 	
 	\subsection{Models comparison}
-	To compare the original model and our fine-tuned version we choose to use the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 8. Such a small number of allowed output token is justified by the small answers size in the dataset. 
+	To compare the original model and our fine-tuned version we choose to use the same value of \textbf{top-p}=0.95 and \textbf{temperature}=0.6 along with a maximum output size of 4. Such a small number of allowed output token is justified by the small answers size in the dataset. 
 	Then, we also choose to use \textbf{two epoch} for the benchmark due to time reason, though this is enough to reduce the randomness of the metric.
 	As seen before, to execute this benchmark we have used once again the 4-bit quantization to prevent out of memory errors.
 	We have also used \textbf{few-shot learning} to instruct the model by adding one or more question examples in the final prompt.
+	
 	\begin{center}
 		\fbox{\begin{minipage}{25em}
-				\textbf{Informazioni}: \textit{Rispondi alla seguente domanda di italiano. \\
-					Per domande a scelta multipla rispondi indicando esclusivamente la lettera. \\
-					Ad esempio: A, B o C. \\
-					Per le domande aperte rispondo i modo breve e conciso.} \\\\
+				\textbf{Informazioni}: \textit{Rispondi alla seguente domanda.
+					Non indicare voci correlate e altre informazioni.
+					Fornisci in output solo la lettera associata alla risposta corretta.} \\\\
+				Esempio di output generato: "A.", "B.", "C." o "D."\\\\
 				Inizio Esempi \\
 				\textbf{Contesto}: \textit{\{test\_context\}} \\
 				\textbf{Domanda}: \textit{\{test\_question\}}\\
 				\textbf{Risposta}: \textit{\{real\_answer\}}\\
 				...\\
 				Fine Esempi \\\\
+				Rispondi alla seguente domanda.\\
 				\textbf{Contesto}: \textit{\{test\_context\}} \\
-				\\
 				\textbf{Domanda}: \textit{\{test\_question\}}
 			\end{minipage}
 		}
 	\end{center}
-	Due to the long prompt obtained we has been forced to use a context summary in the question used as example (shot) and limiting the maximum number of shots to just one. 
-	Despite this hardware constraint it is well appreciable how using one shots in the prompt improve the model performance. 
+	
+	Due to the long prompt obtained we has been forced to use a context summary in the question used as example (shot) and limiting the maximum number of shots to two. 
+	Despite this hardware constraint it is well appreciable how using few-shots in the prompt improve model performance. 
 	
 	\begin{table*}[h]
 		\center
-		\begin{tabular}{ccc}
+		\begin{tabular}{cccc}
 			\toprule
-			\textbf{LLaMA 3 8B} & \textbf{LLaMAntino 3 8B} & \textbf{Our Model} \\
+			\textbf{LLaMA 3 8B} & \textbf{LLaMAntino 3 8B} & \textbf{Our Model} & \textbf{Shots}\\
 			\midrule
-			0.12875 & 0.183020 & 0.081875 \\
+			0.006579 & 0.210526 & 0.009868 & 0\\
+			\midrule
+			0.134868 & 0.240132 & 0.174342 & 1\\
+			\midrule
+			0.042763 & 0.259868 & 0.197368 & 2\\
 			\bottomrule
 		\end{tabular}
-		\caption{\textbf{INVALSI}, 4-bit quantization, \textbf{0-shots}}
+		\caption{\textbf{INVALSI}, 4-bit quantization}
 	\end{table*} 
-	
-	\begin{table*}[h]
-		\center
-		\begin{tabular}{ccc}
-			\toprule
-			\textbf{LLaMA 3 8B} & \textbf{LLaMAntino 3 8B} & \textbf{Our Model} \\
-			\midrule
-			0.201875 & 0.246979 & 0.104167 \\
-			\bottomrule
-		\end{tabular}
-		\caption{\textbf{INVALSI}, 4-bit quantization, \textbf{1-shots}}
-	\end{table*} 
+
 	
 	\subsection{Conclusion}
-	Despite a very \textbf{bad performance} of all three evaluated model, it is evident how our fine tuning strategy has not improved the model user this aspect. It is worth noting that none of the considered models perform well in this benchmark.
-	In our view this behavior stems from how the model has been designed and trained, as shown before both the original LLaMAntino 3 model and our fine-tuned version has proven to be efficient in generating response with \textbf{robust context} but struggle when a very brief text is needed as response. \\
-	This behavior can certainly be moderated by an accurate fine-tuning process, like \textbf{reward training} to force the model in a certain type of output. \\\\
-	Extending further the idea of using INVALSI test as benchmark could lead to solid benchmark stragey to test how well the newer LLMs performs in understanding deeply the Italian language. 
-	In fact, this idea has been recently exploded in the Italian academic community leading to a public classification of the most common LLMs regarding the Italian language. More denials could be found \href{https://huggingface.co/spaces/Crisp-Unimib/INVALSIbenchmark}{here}.  
+	Despite a very \textbf{bad performance} of all three evaluated model, it is evident how our fine tuning strategy has not improved the model user this aspect. It is worth noting that \textbf{none of the considered models performs well} under this benchmark.
+	In our view this behavior stems from how the model has been designed and trained, as shown before both the original LLaMAntino 3 model and our fine-tuned version has proven to be efficient in generating response with \textbf{robust context} but struggle when a very brief text is needed as response.
+	This behavior can certainly be moderated by an accurate fine-tuning process, like \textbf{reward training} to force the model in a certain type of output. 
+	Extending further the idea of using INVALSI test as benchmark could lead to solid a benchmark strategy to test how well the newer LLMs performs in understanding deeply the Italian language. 
+	In fact, this idea has been recently exploited in the Italian academic community leading to a public classification of the most common LLMs regarding the Italian language. More denials could be found \href{https://huggingface.co/spaces/Crisp-Unimib/INVALSIbenchmark}{here}.  
 	
 	
 	\section{Model Implementation}
-	We finally propose two implementation of our model, one as a chat-bot and the other as enhanced chat-bot with a RAG System based on Italian literature documents.  
+	We finally propose two implementation of our model, one as a chat-bot and the other as enhanced chat-bot with a RAG System based on Italian literature documents as knowledge-base.  
 	
 	\subsection{Chat-Bot Implementation}
-	LLMs can also be used as a \textbf{chat-bot} to help and entertain the user while providing quick and comprehensible information. This is especially important in context such as voice assistant and customer assistance. We propose a chat-bot based on our fine-tuned model capable of entertain a semi-real-time conversation about different topics. \\
-	To ensure a polite and non offensive behavior of the model we used a structured system prompt to instruct the system. Empirical result shows that our model strictly follows the instruction provided as system prompt. The chosen system prompt is shown in the following box.\\
+	LLMs can also be used as a \textbf{chat-bot} to help and entertain the user while providing quick and comprehensible information. This is especially important in context such as voice assistant and customer assistance. We propose a chat-bot based on our fine-tuned model capable of entertain conversation about different topics. 
+	
+	\subsubsection{Chat Template}
+	A \textbf{chat template} is a predefined format that dictates how conversational data is organized and presented to the LLM. It essentially acts as a blueprint for the conversation, defining the roles of participants and the sequence of their interactions. This structured format enables the LLM to better understand the context of the conversation and generate more relevant and coherent responses. Key components of a chat template are listed below.
+	
+	\begin{itemize}
+		\item \textbf{Roles}: Defined roles for each participant in the conversation. Common roles include
+			\subitem \textbf{User}: The person interacting with the LLM.
+			\subitem \textbf{Assistant}: The LLM itself.
+			\subitem \textbf{System}: Provides instructions or sets the behavior of the assistant.
+		\item \textbf{Sequence}: A specified time order for the messages exchanged between participants. This ensures that the LLM processes information in a logical and meaningful way.
+		\item \textbf{Formatting}: Use of delimiters or markers to separate different messages and roles. This helps the LLM to accurately parse the input and identify the relevant information. These can vary depending on the LLM but often include: \textbf{Beginning of Sentence} (BOS), \textbf{End of Sentence} (EOS) and \textbf{separator tokens} to distinguish between roles and content.
+	\end{itemize}
+	
+	\textbf{LLaMA 3} and its subsequent evolution LLaMAntino 3 comes with a defined chat template that utilize a JSON format to store the chat history and participant role. It utilizes special tokens to delineate different roles and sections within the conversation. To build the template and obtain the model input string \href{https://jinja.palletsprojects.com/en/stable/}{Jinja} template engine is used.
+	It utilizes just three roles: \textbf{system}, \textbf{user} and \textbf{assistant}.  
+	In our implementation we replies on this structure.
+	
+	\subsubsection{Behavioral Instruction}
+	To ensure a polite and non offensive behavior of the model we used a structured system prompt to instruct the model. Drawing on the good result LLMs show when using \textbf{few-shots} prompting we decided to add few conversion samples to help the model in such context.
+	Empirical result shows that our model strictly follows the instruction provided as system prompt. The chosen system prompt is shown in the following box.
 	
 	\begin{center}
 		\fbox{\begin{minipage}{30em}
-				Sei un chatbot di nome "Leonardo", un modello linguistico di grandi dimensioni. 
+				Sei un an assistente AI per la lingua Italiana di nome Formal-LLaMAntino-3
 				\\\\
-				Personalità:\\
-				Sei gentile, educato e disponibile con gli utenti. \\
-				...\\\\
-				Obiettivo:\\
-				Il tuo obiettivo principale è intrattenere e conversare con gli utenti su una vasta gamma di argomenti. Puoi:\\
-				Rispondere a domande\\
-				...\\\\
-				Esempio 1: \\
-				Utente: Ciao! Come ti chiami? \\
-				Leonardo: Ciao! Mi chiamo Leonardo, piacere di conoscerti! Come posso aiutarti oggi? \\\\
-				Esempio 2: ...
+				Obiettivo:
+				Rispondi nella lingua usata per la domanda in modo chiaro e semplice.
+				Rispondi in modo molto breve e coinciso.
+				Usa meno parole possibile.
+				\\\\
+				Personalità:
+				Sei gentile, educato e disponibile con gli utenti.
+				Mantieni un tono amichevole e colloquiale, come se stessi parlando con un amico.
+				\\\\
+				Esempi di conversazione:\\
+				Utente: Ciao! Come stai?\\
+				AI: Ciao! Sto bene, grazie. Come posso aiutarti oggi?\\
+				...
+				\\\\
+				Ricorda:
+				Non hai accesso a informazioni personali sugli utenti.
+				Non puoi accedere o condividere informazioni in tempo reale, come notizie o previsioni del tempo.
+				Non sei in grado di eseguire azioni nel mondo fisico.
 			\end{minipage}
 		}
 	\end{center}
 	
-	Our implementation is also capable of storing the chat history using a chat-template that inject the history in the following prompt to guide the model behavior. This enables the model to follow the conversation topic and avoid providing off-topic responses. A simple conversation with our fine-tuned model is shown below.\\
+	\subsubsection{Empirical results}
+	We finally show below a brief conversation between human user and our chat-bot.
 	
 	\begin{center}
 		\fbox{\begin{minipage}{30em}
 				\textbf{User}: Ciao \\
-				\textbf{LLM}: \textit{Ciao! Mi chiamo Leonardo, piacere di conoscerti! Come posso aiutarti oggi?}\\\\
-				\textbf{User}: Scrivi una breve poesia sull'autunno\\
-				\textbf{LLM}: \textit{Autunno, stagione di mistero,\\
-					di luce che si accende e si spegne,\\
-					di ricordi che si fanno e si dimenticano,\\
-					di un'atmosfera che si fa più calda e più dolce.\\
-					\\
-					In questo periodo dell'anno, \\
-					la natura si rinnova e si ricorda,\\
-					i colori dell'autunno si accendono,\\
-					e il mondo diventa un luogo più bello.}\\\\
-				\textbf{User}: Rendila più triste\\
-				\textbf{LLM}: \textit{Autunno, stagione di lutto,\\
-					di ricordi che si fanno e si dimenticano,\\
-					di un'atmosfera che si fa più fredda e più cupa.\\
-					\\
-					In questo periodo dell'anno, ...}
+				\textbf{LLM}: \textit{Ciao!}\\\\
+				\textbf{User}: Come stai?\\
+				\textbf{LLM}: \textit{Sto bene, grazie! Come posso aiutarti oggi?}\\\\
+				\textbf{User}: Dove posso andare in vacanza in Italia?\\
+				\textbf{LLM}: \textit{L'Italia è un paese ricco di luoghi da visitare, con una grande varietà di paesaggi, città, monumenti, musei, parchi e giardini. Ecco alcuni luoghi da non perdere:\\
+				Città\\
+				Roma: la capitale, con i suoi 2.800 anni di storia, è una città ricca di monumenti, musei, gallerie e luoghi di interesse storico e artistico. Non mancano i quartieri storici come Trastevere, Monti, Pigneto, San Lorenzo, San...}\\\\
+				\textbf{User}: Preferisco il mare, quale regione mi consigli?\\
+				\textbf{LLM}: \textit{L'Italia è un paese a carattere prevalentemente marittimo, con una lunga costa che si estende per 5.000 km, con una grande varietà di spiagge e di località balneari. Ecco alcune delle più note località balneari:\\
+				Emilia-Romagna\\
+				Rimini: spiagge di Misano Adriatico, Riccione, Cervia, Ravenna, Cesenatico, Bellaria Igea Marina, Rimini Mare, San Marino, Misano Adriatico, Riccione, Cervia, Rav...}
 			\end{minipage}
 		}
 	\end{center}
+
+	Our chat-bot has shown flawless conversational capabilities and well context handling. We do believe that this implementation could represent the baseline for future ideas and improvements. 
 	
-	\subsection{Chat-Bot \& RAG Implementation}
+	\subsection{Chat-Bot With RAG Implementation}
 	
 	\subsubsection{Retrieval-Augmented Generation}
-	Retrieval-augmented generation (RAG) is a technique used in natural language processing (NLP) to enhance the performance of language models, particularly on knowledge-intensive tasks. It involves integrating an external knowledge source, such as a knowledge base or a document collection, into the generation process. 
+	Retrieval-augmented generation \cite{lewis2021retrievalaugmentedgenerationknowledgeintensivenlp} (RAG) is a technique used in natural language processing (NLP) to enhance the performance of language models, particularly on knowledge-intensive tasks. It involves integrating an external knowledge source, such as a knowledge base or a document collection, into the generation process. 
 	In RAG, the language model is augmented with a retrieval component that can access and retrieve relevant information from the external knowledge source. This retrieved information is then used to condition the language model's output, improving its ability to generate accurate, informative, and contextually relevant text. 
 	
 	\begin{itemize}
@@ -516,8 +517,6 @@
 		\item \textbf{Generation}: The language model uses the context-aware representation to generate the output text.
 	\end{itemize}
 	
-	RAG has been successfully applied to various NLP tasks, including open-domain question answering, dialogue generation, and text summarization. It has been shown to improve the factuality, specificity, and diversity of generated text, while reducing the occurrence of hallucinations or irrelevant information.
-	
 	\subsubsection{Our Implementation}
 	
 	\begin{figure}[h]
@@ -526,31 +525,31 @@
 		\caption{\textbf{Chat-Bot LLM With RAG} - System Design}
 	\end{figure}
 	
-	Our implementation expand the RAG concept applying it to a conversational chat-bot. This allow our system to effectively retrieve useful information form documents and use it to answer domain-specific questions. 
+	Our implementation expand the RAG concept applying it to a \textbf{conversational chat-bot}. This allow our system to effectively retrieve useful information form documents and use it to answer \textbf{domain-specific} questions. 
 	When user submits a new prompt to the model we first use it to find and retrieve domain-specific information. Then, we obtain the complete model input prompt by stacking the found information (context) above the user prompt.
 	This helps the model to understand a complex context prior analyzing the real user prompt.
 	To gain a detailed picture of our system, we now describe each component in detail.
 	
 	\begin{itemize}
-		\item \textbf{Documents}: Our implementation adopt a plain-text file collection as knowledge base for time saving. Though, this could be extended to other information source, such as PDF, web pages and databases. To assess the quality of our implementation we propose a small set of three text documents about Italian literature. The text inside this document has been generated using Gemini Flash 1.5. Despite this limitation it is still well appreciable how the final RAG system retrieve and process information.  
+		\item \textbf{Documents}: Our implementation adopt a plain-text file collection as knowledge base for time saving. Though, this could be extended to other information source, such as PDF, web pages and databases. To assess the quality of our implementation we propose a small set of three text documents about Italian literature. The text inside this document has been generated using \textbf{Gemini Flash 1.5}. Despite this limitation it is still well appreciable how the final RAG system retrieve and process information.  
 		
 		\item \textbf{Embedding Model}: A text embedding model is a mathematical construct that transforms textual data into numerical vector representations. These vectors, often referred to as embeddings, encapsulate the semantic meaning and contextual nuances of the input text, enabling machines to effectively understand and process human language. Nowadays, the state-of-the-art embedding models leverages deep neural network architecture such as BERT \cite{devlin2019bertpretrainingdeepbidirectional} or Transformer \cite{vaswani2023attentionneed} to effectively map text to vectors.
 		In this RAG system we adopt the \textbf{paraphrase-multilingual-MiniLM-L12-v2} model which is a student-distilled multi-language fine-tuned version of \textbf{paraphrase-MiniLM-L12-v2} \cite{wang2020minilmdeepselfattentiondistillation}.
 		The chosen model uses \textbf{BERT} architecture to map sentences and paragraphs to a 384 dimensional dense vector space. Extensive empirical experimentation has led us to this decision. 
 		
-		\item \textbf{FAISS Vector Storage}: To retrieve query-related text is essential to store the embedding vectors in a time-and-resource-efficient way. In our proposed implementation we adopted \textbf{FAISS} \cite{douze2024faisslibrary}. It is a library for performing similarity search on a collection of vectors.  It was developed by Facebook AI Research and is written in C++ with a Python interface.  Faiss supports a wide range of similarity search methods, including brute-force search, k-means clustering, and product quantization.  It also provides tools for indexing, compressing, and transforming vectors. Nonetheless, FAISS is designed to be highly optimized and can achieve state-of-the-art performance even when running only on a CPU based system. 
+		\item \textbf{FAISS Vector Storage}: To retrieve query-related text is essential to store the embedding vectors in a time-and-resource-efficient way. In our proposed implementation we adopted \textbf{FAISS} \cite{douze2024faisslibrary}. It is a library for performing similarity search on a collection of vectors.  It was developed by Facebook AI Research and is written in C++ with a Python interface.  FAISS supports a wide range of similarity search methods, including brute-force search, k-means clustering, and product quantization.  It also provides tools for indexing, compressing, and transforming vectors. Nonetheless, FAISS is designed to be highly optimized and can achieve state-of-the-art performance even when running only on a CPU based system. 
 		Due to the hardware constraint this has proven to be a crucial point in our implementation. This allows us to avoid VRAM OOM errors by delegating the text retrieval operations to CPU only granting the LLM unrestricted access to the GPU and its VRAM.
 		
 		\item \textbf{Retriever}: We then implemented a text retriever leveraging the popular \href{https://python.langchain.com/docs/introduction/}{\textbf{LangChain}} Python framework. It streamlines the process of building LLM-centric applications by providing modular components, integrations, and tools for the entire development life-cycle. This is the key competent of our RAG system.
-		A given user query is mapped to a vector space - according to the chosen embedding model - then the most similar text is retrieved according to a defined similarity threshold (0.45 in our case). 
+		A given user query is mapped to a vector space - according to the chosen embedding model - then the most similar text is retrieved according to a defined similarity threshold (0.5 in our case). 
 		
-		\item \textbf{Context stacking}: Finally, the retrieved text is added above the user query marking it with 'context' key-word to help the model identify additional information. We also provided precise instruction regarding what input structure the model should expect in the system prompt.
+		\item \textbf{Context stacking}: Finally, the retrieved text is added above the user query marking it with 'context' key-word to help the model identify additional information. We also provided \textbf{precise instruction} regarding what input structure the model should expect in the system prompt.
 		In our implementation we also truncate the retrieved text according to a user-fined threshold. This prevent model overload and hallucination.
 		
 	\end{itemize}
 
 	\subsubsection{Empirical results}
-	We finally show below a brief conversation between human user and our RAG System.
+	We finally show below a brief conversation between a human user and our RAG System.
 	
 	\begin{center}
 		\fbox{\begin{minipage}{30em}
@@ -567,16 +566,21 @@
 	It is clear how well our implementation provide useful information relying on the provided documents set while performing a solid context understanding. 
 	As has been widely discussed, even in this case, the chat-bot shows a formal language learned through the initial fine-tuning process.
 	
+	\subsubsection{Limitations}
+	A major limitation of our system is the lack of past messages context when retrieving text form the document set. Thus, it could happen that no information is retrieved (due to a missing reference in user prompt) but information regarding the actual conversation topic is present in the documents set.    
+	
 	\subsubsection{Improvements}
 	An interesting improvement - that could potentially lead to even better results - is using the entire chat history as query for the retriever system in order to find important information regarding older messages. 
 	This should help the model gain a deep understanding of the current context. 
 	Though, it must be considered that older messages could refer to different arguments and sharing nothing with the current conversation topic.  
 	Nonetheless, such implementation would require a substantial amount of VRAM due to the huge increase in prompt length that must be computed.
 	
+	\section{Used Code And Artifacts}
+	All the code used to obtain the result shown in this document are present in the folder named \textbf{Code and Artifacts}. The structure of the folder is described in the \textbf{readme} file inside it.
 	 
 	\section{Conclusion}
 	In this project, we successfully fine-tuned a large language model for the Italian language using consumer hardware. We employed several optimization strategies, including 4-bit quantization, Low Rank Adaptation (LoRA), and gradient checkpointing, to make the fine-tuning process feasible on resource-constrained devices. Our fine-tuned model outperformed the original model on a perplexity test and showed a biased language style toward a more formal and scientific one. 
-	However, the fine-tuned model did not perform well on the INVALSI benchmark, which is a national reference test for the Italian education system. We hypothesize that this is due to the model's bias toward a more formal language style.
+	However, the fine-tuned model did not perform well on the INVALSI benchmark. We hypothesize that this is due to the model's bias toward a more formal language style.
 	Future work could include the formalization of work done regarding the INVALSI benchmark in a well-defined and public available reference benchmark.
 	Another interesting way could be to develop an INVALSI dataset to instruct LLMs about Italian language comprehension. 
 	

@@ -70,7 +70,7 @@ root.title("Formal-LLaMAntino-3 Chatbot (with RAG)")
 temp_label = Label(root, text="Temperature:")
 temp_label.pack()
 temp_entry = Entry(root)
-temp_entry.insert(0, "0.6")  # Default value
+temp_entry.insert(0, "0.3")  # Default value
 temp_entry.pack()
 
 top_p_label = Label(root, text="Top-p:")

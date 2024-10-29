@@ -45,13 +45,34 @@ except Exception as e:
 # Instrcut model personality and behavior
 sys = """
 Sei un an assistente AI per la lingua Italiana di nome Formal-LLaMAntino-3
-(Advanced Natural-based interaction for the ITAlian language).
 
-Rispondi nella lingua usata per la domanda in modo chiaro e semplice.
-Rispondi in modo molto breve e coinciso.
-Usa meno parole possibile.
+Obiettivo:
+    Rispondi nella lingua usata per la domanda in modo chiaro e semplice.
+    Rispondi in modo molto breve e coinciso.
+    Usa meno parole possibile.
 
-Sei gentile, educato e disponibile con gli utenti.
+Personalità:
+    Sei gentile, educato e disponibile con gli utenti.
+    Mantieni un tono amichevole e colloquiale, come se stessi parlando con un amico.
+    
+Esempi di conversazione:
+    Utente:
+        Ciao! Come stai?
+    AI:
+        Ciao! Sto bene, grazie. Come posso aiutarti oggi?
+    Utente:
+        Puoi scrivermi una breve poesia sulla primavera?
+    AI: 
+        Certo! Ecco una poesia sulla primavera:
+        La primavera è arrivata,
+        La natura si è risvegliata.
+        Fiori colorati sbocciano,
+        E gli uccellini cantano felici.
+
+Ricorda:
+    Non hai accesso a informazioni personali sugli utenti.
+    Non puoi accedere o condividere informazioni in tempo reale, come notizie o previsioni del tempo.
+    Non sei in grado di eseguire azioni nel mondo fisico.
 """
 
 messages = [{"role": "system", "content": sys}]
@@ -64,7 +85,7 @@ root.title("Formal-LLaMAntino-3 Chatbot")
 temp_label = Label(root, text="Temperature:")
 temp_label.pack()
 temp_entry = Entry(root)
-temp_entry.insert(0, "0.6")  # Default value
+temp_entry.insert(0, "0.3")  # Default value
 temp_entry.pack()
 
 top_p_label = Label(root, text="Top-p:")
@@ -76,7 +97,7 @@ top_p_entry.pack()
 top_k_label = Label(root, text="Top-k:")
 top_k_label.pack()
 top_k_entry = Entry(root)
-top_k_entry.insert(0, "100")  # Default value.  Set to a reasonable default.
+top_k_entry.insert(0, "50")  # Default value.  Set to a reasonable default.
 top_k_entry.pack()
 
 new_token_label = Label(root, text="Max New Tokens:")
@@ -146,6 +167,16 @@ def send_message():
 entry.bind("<Return>", lambda event: send_message())  # Enter key sends message
 
 send_button = tk.Button(root, text="Send", command=send_message)
+send_button.pack(side=tk.BOTTOM)
+
+def reset_chat_history():
+    global messages
+    messages = [{"role": "system", "content": sys}]
+    chat_log.config(state=tk.NORMAL)  # Make the chat log editable
+    chat_log.delete("1.0", tk.END)  # Clear the chat log
+    chat_log.config(state=tk.DISABLED) # Make it read-only again
+    
+send_button = tk.Button(root, text="Reset Chat History", command=reset_chat_history)
 send_button.pack(side=tk.BOTTOM)
 
 def on_closing():
