@@ -1,30 +1,40 @@
+"""
+This script implements a graphical user interface (GUI) for a conversational AI chatbot.
+The chatbot is powered by a fine-tuned version of the LLaMAntino 3 8B model.
+
+This script provides a user-friendly interface built with Tkinter, allowing users to:
+- Interact with the chatbot in a conversational manner.
+- Adjust model parameters such as temperature, top-p, top-k, and max new tokens.
+- View the ongoing conversation in a chat log.
+- Reset the chat history to start a new conversation.
+
+The script is designed to be a standalone application that demonstrates the capabilities of the fine-tuned model in a practical, interactive setting.
+"""
+
 import gc
 import tkinter as tk
 from tkinter import scrolledtext, Label, Entry
 import torch
 import transformers
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    BitsAndBytesConfig,
-)
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 import logging
 
-# Clean VRAM cahce
+# --- Initial Memory and Logger Configuration ---
+
 gc.collect()
 torch.cuda.empty_cache()
 
-# Create & configure logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO) 
+logger.setLevel(logging.INFO)
 console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO) 
+console_handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
+# --- Model and Tokenizer Loading ---
 
-base_model = "/home/bruno/Documents/GitHub/ir-nlp-llama/delivery/model_dump/Formal_LLaMAntino_3"  # Change this path
+base_model = "/home/bruno/Documents/GitHub/ir-nlp-llama/delivery/model_dump/Formal_LLaMAntino_3"
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_quant_type="nf4",
@@ -41,8 +51,8 @@ except Exception as e:
     logger.error(f"Error loading model: {e}")
     exit(1)
 
-# System prompt used as 0-time message in the chat-template.
-# Instrcut model personality and behavior
+# --- System Prompt and Chat History ---
+
 sys = """
 Sei un an assistente AI per la lingua Italiana di nome Formal-LLaMAntino-3
 
@@ -77,59 +87,59 @@ Ricorda:
 
 messages = [{"role": "system", "content": sys}]
 
-# --- GUI Implementation using Tkinter ---
+# --- GUI Implementation ---
+
 root = tk.Tk()
 root.title("Formal-LLaMAntino-3 Chatbot")
 
-# --- Parameter Input Boxes ---
-temp_label = Label(root, text="Temperature:")
-temp_label.pack()
+# --- Parameter Input Fields ---
+
+Label(root, text="Temperature:").pack()
 temp_entry = Entry(root)
-temp_entry.insert(0, "0.3")  # Default value
+temp_entry.insert(0, "0.3")
 temp_entry.pack()
 
-top_p_label = Label(root, text="Top-p:")
-top_p_label.pack()
+Label(root, text="Top-p:").pack()
 top_p_entry = Entry(root)
-top_p_entry.insert(0, "0.9")  # Default value
+top_p_entry.insert(0, "0.9")
 top_p_entry.pack()
 
-top_k_label = Label(root, text="Top-k:")
-top_k_label.pack()
+Label(root, text="Top-k:").pack()
 top_k_entry = Entry(root)
-top_k_entry.insert(0, "50")  # Default value.  Set to a reasonable default.
+top_k_entry.insert(0, "50")
 top_k_entry.pack()
 
-new_token_label = Label(root, text="Max New Tokens:")
-new_token_label.pack()
+Label(root, text="Max New Tokens:").pack()
 new_token_entry = Entry(root)
-new_token_entry.insert(0, "128")  # Default value.  Set to a reasonable default.
+new_token_entry.insert(0, "128")
 new_token_entry.pack()
 
-# --- Text Box ---
+# --- Chat Log and Input Field ---
+
 chat_log = scrolledtext.ScrolledText(root, wrap=tk.WORD)
 chat_log.pack(expand=True, fill="both")
-chat_log.config(state=tk.DISABLED)  # Make it initially read-only
+chat_log.config(state=tk.DISABLED)
 
 entry = scrolledtext.ScrolledText(root, wrap=tk.WORD, height=3)
 entry.pack(expand=True, fill=tk.X, side=tk.BOTTOM)
 
 def send_message():
+    """Handles sending a message to the chatbot and displaying the response."""
     user_input = entry.get("1.0", tk.END).strip()
     if not user_input:
         return
     entry.delete("1.0", tk.END)
     logger.info(f"New user message: {user_input}")
     
-    # Add user message to chat history
     messages.append({"role": "user", "content": user_input})
     try:
+        # Get parameters from the GUI.
         temperature = float(temp_entry.get())
         top_p = float(top_p_entry.get())
-        top_k = int(top_k_entry.get()) 
+        top_k = int(top_k_entry.get())
         new_token = int(new_token_entry.get())
         
-        # Re-intialize HF Pipeline
+        # Create the text generation pipeline.
         pipe = transformers.pipeline(
             model=model,
             tokenizer=tokenizer,
@@ -142,21 +152,21 @@ def send_message():
             top_k=top_k
         )
         
-        logger.info(f"Intialized HF pipeline with: temp={temperature}, top-p={top_p}, top-k={top_k}, new_token={new_token}")
+        logger.info(f"Initialized HF pipeline with: temp={temperature}, top-p={top_p}, top-k={top_k}, new_token={new_token}")
 
+        # Generate the response and update the chat log.
         gen_seqs = pipe(messages)
         response = "".join([seq["generated_text"] for seq in gen_seqs])
         messages.append({"role": "assistant", "content": response})
         chat_log.config(state=tk.NORMAL)
         chat_log.insert(tk.END, f"You:\t{user_input}\n")
-        chat_log.insert(tk.END, f"AI:\t{response}\n")
-        chat_log.insert(tk.END, "\n")
-        chat_log.see(tk.END)  # Scroll to bottom
+        chat_log.insert(tk.END, f"AI:\t{response}\n\n")
+        chat_log.see(tk.END)
         chat_log.config(state=tk.DISABLED)
         
         logger.debug(f"Chat history: {messages}")
         
-        # Prevent OOM
+        # Clean up memory.
         gc.collect()
         torch.cuda.empty_cache()
     except Exception as e:
@@ -164,25 +174,26 @@ def send_message():
         chat_log.insert(tk.END, f"Error: {e}\n")
         chat_log.config(state=tk.DISABLED)
 
-entry.bind("<Return>", lambda event: send_message())  # Enter key sends message
+entry.bind("<Return>", lambda event: send_message())
 
-send_button = tk.Button(root, text="Send", command=send_message)
-send_button.pack(side=tk.BOTTOM)
+# --- GUI Buttons and Main Loop ---
+
+tk.Button(root, text="Send", command=send_message).pack(side=tk.BOTTOM)
 
 def reset_chat_history():
+    """Resets the chat history."""
     global messages
     messages = [{"role": "system", "content": sys}]
-    chat_log.config(state=tk.NORMAL)  # Make the chat log editable
-    chat_log.delete("1.0", tk.END)  # Clear the chat log
-    chat_log.config(state=tk.DISABLED) # Make it read-only again
+    chat_log.config(state=tk.NORMAL)
+    chat_log.delete("1.0", tk.END)
+    chat_log.config(state=tk.DISABLED)
     
-send_button = tk.Button(root, text="Reset Chat History", command=reset_chat_history)
-send_button.pack(side=tk.BOTTOM)
+tk.Button(root, text="Reset Chat History", command=reset_chat_history).pack(side=tk.BOTTOM)
 
 def on_closing():
+    """Handles the window closing event."""
     root.destroy()
     exit(0)
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
-
 root.mainloop()

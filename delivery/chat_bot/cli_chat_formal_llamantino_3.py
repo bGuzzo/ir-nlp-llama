@@ -1,40 +1,48 @@
 """
-    This pyhton script implements a conversational AI chatbot using 
-    our fine-tuned version of LLaMAntino 3 8B.
-    
-    We store the chat history relying on the LLaMAntino 3 chat template. 
-    At a given time the model imput prompt include the system prompt and the chat history
-    by storing user inputs and previous generated responses.
+This script implements a command-line interface (CLI) for a conversational AI chatbot.
+The chatbot is powered by a fine-tuned version of the LLaMAntino 3 8B model and is designed to engage in
+conversations with users through the terminal.
+
+The script manages the conversation history using the LLaMAntino 3 chat template, which includes a system
+prompt to define the chatbot's personality and behavior. User inputs are continuously read from the command
+line, and the model's responses are generated and displayed in real-time.
+
+Key Features:
+-   Interactive CLI for engaging with the chatbot.
+-   Powered by the fine-tuned Formal-LLaMAntino-3 model.
+-   Manages conversation history for context-aware responses.
+-   Uses 4-bit quantization for efficient memory and processing.
 """
 
 import torch
 import transformers
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    BitsAndBytesConfig,
-)
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-base_model = "/home/bruno/Documents/GitHub/ir-nlp-llama/delivery/model_dump/Formal_LLaMAntino_3" # Chnage this path to the local model dump
+# --- Model and Tokenizer Configuration ---
+
+# Path to the local model directory.
+base_model = "/home/bruno/Documents/GitHub/ir-nlp-llama/delivery/model_dump/Formal_LLaMAntino_3"
+
+# Configuration for 4-bit quantization to optimize for memory and speed.
 bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True, # Use 4-bit quantization for memory and time efficency
+    load_in_4bit=True,
     bnb_4bit_quant_type="nf4",
     bnb_4bit_compute_dtype=torch.bfloat16,
     bnb_4bit_use_double_quant=False,
 )
 
-# Loads the model using HF libraries
+# Load the quantized model and its corresponding tokenizer.
 model = AutoModelForCausalLM.from_pretrained(
     base_model,
     quantization_config=bnb_config,
     device_map="auto",
 )
-
-# Loads the tokenizer corresponding to the loaded model. 
 tokenizer = AutoTokenizer.from_pretrained(base_model)
 
-# System prompt used as 0-time message in the chat-template.
-# Instrcut model personality and behavior
+# --- System Prompt and Chat History ---
+
+# The system prompt defines the personality, objectives, and constraints of the chatbot.
+# It is the first message in the chat template and guides the model's behavior throughout the conversation.
 sys = """
 Sei un an assistente AI per la lingua Italiana di nome Formal-LLaMAntino-3
 
@@ -67,35 +75,38 @@ Ricorda:
     Non sei in grado di eseguire azioni nel mondo fisico.
 """
 
-"""
-    Store the conversion history in a list.
-    This will be input object to the model, which will later be compiled using the chat-template 
-    in a text prompt.
-    There is three role for this chat: system, user and assistant
-"""
+# The `messages` list stores the conversation history, which is passed to the model
+# to maintain context. It is initialized with the system prompt.
 messages = [
     {"role": "system", "content": sys},
 ]
 
-# Use HF pipeline
+# --- Text Generation Pipeline ---
+
+# Create a text generation pipeline using the loaded model and tokenizer.
 pipe = transformers.pipeline(
     model=model,
     tokenizer=tokenizer,
-    return_full_text=False, # Langchain expects the full text
+    return_full_text=False,  # Set to False as Langchain expects only the generated text.
     task='text-generation',
-    max_new_tokens=128, # Small number of max out tokens for time efficiency
-    temperature=0.3,  # Temperature for more or less creative answers
+    max_new_tokens=128,  # Limit the number of generated tokens for efficiency.
+    temperature=0.3,  # A lower temperature produces more deterministic and less creative responses.
     do_sample=True,
     top_p=0.95,
 )
 
-# Main Conversation Loop, read and ingest user prompt
-while(True):
+# --- Main Conversation Loop ---
+
+while True:
+    # Read user input from the command line.
     user_prompt = input("Q:\t")
+    # Append the user's message to the conversation history.
     messages.append({"role": "user", "content": user_prompt})
+    # Generate a response from the model.
     gen_seqs = pipe(messages)
-    segn_seq_str = ""
-    for seq in gen_seqs:
-        segn_seq_str = segn_seq_str + seq['generated_text']
+    # Concatenate the generated sequences into a single response string.
+    segn_seq_str = "".join([seq['generated_text'] for seq in gen_seqs])
+    # Append the model's response to the conversation history.
     messages.append({"role": "assistant", "content": segn_seq_str})
+    # Print the model's response to the console.
     print(f"A:\t{segn_seq_str}")
