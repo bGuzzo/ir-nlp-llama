@@ -1,128 +1,55 @@
-# LLaMAntino 3: Further Fine-Tuning on the Italian Language
+# Fine-Tuning and Evaluation of LLaMAntino 3 for Enhanced Italian Language Proficiency
 
-## Overview
+This repository contains the complete artifacts of a research project conducted for the Natural Language Processing (NLP) course as part of a Master of Science degree. The project undertakes a comprehensive investigation into the fine-tuning of a state-of-the-art Large Language Model (LLM), `LLaMAntino-3-ANITA-8B-Inst-DPO-ITA`, on consumer-grade hardware.
 
-This project explores the fine-tuning of the LLaMAntino 3 large language model (LLM) to enhance its Italian language capabilities. We employ optimization techniques, including 4-bit quantization, Low-Rank Adaptation (LoRA), and gradient checkpointing, to enable efficient fine-tuning on consumer hardware. 
-## Project Structure
+## Abstract
 
-The repository is organized as follows:
+This research delves into the fine-tuning of a large language model to enhance its proficiency in the Italian language. By employing a suite of optimization techniques—including 4-bit quantization, Low-Rank Adaptation (LoRA), and gradient checkpointing—we efficiently fine-tuned the model on consumer hardware using the Italian Wikipedia dataset. This methodology enabled the optimization of the model's performance while minimizing computational overhead. To assess the impact of our fine-tuning strategy, we conducted a comprehensive evaluation using a series of Italian benchmarks, including perplexity analysis, commonsense reasoning tasks (ARC-IT, Hellaswag-IT), and a custom-developed benchmark based on the Italian INVALSI scholastic tests. The project further explores the practical application of the fine-tuned model through the implementation of both standard and Retrieval-Augmented Generation (RAG) chatbot systems.
 
-* `chat_bot`: Contains the CLI and GUI chatbot implementations using the fine-tuned model.
-* `chat_bot_with_rag`: Includes the GUI chatbot with RAG implementation, along with document sets and the text retriever.
-* `evaluation`: Provides scripts for evaluating the model on various benchmarks.
-* `invalsi_benchmark`: Contains the code and data for the INVALSI benchmark, used to test the model's Italian language comprehension.
-* `model_dump`: Stores the fine-tuned model dumps.
-* `perplexity`: Includes scripts and results for perplexity evaluation.
-* `training`: Contains the original fine-tuning script and the script used for fine-tuning on the Wikipedia dataset.
-* `delivery`: This directory contains all the folders mentioned above, scripts, a requirements.txt file, and a readme.txt file.
-* `requirements.txt`: Lists the Python dependencies for the project.
-* `Relazione_IR-NLP_Bruno_Guzzo.pdf`: A report detailing the project. 
+## Key Findings
 
-# LLaMAntino 3: Further Fine-Tuning on the Italian Language
+The empirical results of this research yield several key insights into the effects of domain-specific fine-tuning on LLMs:
 
-## Project Description
+1.  **Improved Language Modeling on Domain-Specific Data:** The fine-tuned model, `Formal-LLaMAntino-3`, demonstrated a marked improvement in language modeling capabilities on the Italian Wikipedia dataset. It achieved a perplexity score of **11.39**, significantly outperforming both the base `LLaMAntino-3` model (**18.76**) and the original `Llama-3` model (**15.92**). This quantitatively validates the success of the fine-tuning process in adapting the model to the target domain.
 
-This project focuses on fine-tuning a large language model (LLM) for enhanced Italian language proficiency. We employ 4-bit quantization, gradient checkpointing, and low-rank adaptation to efficiently fine-tune the model on consumer hardware. The project explores the potential of incorporating Retrieval-Augmented Generation (RAG) with a chatbot approach.
+2.  **Stylistic Specialization and Performance Trade-offs:** A qualitative analysis of the model's generative capabilities revealed a distinct stylistic shift towards a more formal, discursive, and scientific tone, consistent with the language used in Wikipedia articles. While this specialization is desirable for academic and formal contexts, it resulted in a performance degradation on general commonsense reasoning benchmarks such as ARC-IT and Hellaswag-IT. This suggests a trade-off between domain specialization and general-purpose reasoning capabilities.
 
-## Key Components
+3.  **Challenges in Task-Specific Adaptation:** A custom benchmark was developed using the Italian INVALSI scholastic tests to evaluate language comprehension in an educational context. All evaluated models, including the fine-tuned version, exhibited suboptimal performance on this benchmark. Our hypothesis is that the models, which are primarily optimized for generating contextually rich and verbose responses, struggle with tasks requiring concise, multiple-choice answers. This highlights the challenges in adapting generative models to specific, constrained-output tasks without further task-specific fine-tuning (e.g., reward training).
 
-* **Base Model**: Meta LLaMA and LLaMA 3.
-* **Fine-tuning**: LLaMAntino 3 8B, an Italian language LLM based on Meta's LLaMA 3. 
-* **Optimization**: 4-bit quantization, Low-Rank Adaptation (LoRA), and gradient checkpointing. 
-* **Fine-tuning Dataset**: Italian Wikipedia dataset. 
-* **Evaluation**: Perplexity score and common benchmark scores (ARC-it, Hellaswag-it).
-* **Chatbot Implementation**: Includes chat template, behavioral instructions, and empirical results. 
-* **RAG Implementation**: Retrieval-Augmented Generation to enhance chatbot capabilities. 
-* **INVALSI Benchmark**: Evaluation using Italian language comprehension tests. 
+4.  **Efficacy of Retrieval-Augmented Generation (RAG):** The project successfully implemented a RAG system to augment the fine-tuned model with a domain-specific knowledge base on Italian literature. The resulting chatbot demonstrated a profound ability to answer specific questions by retrieving and synthesizing information from the provided documents, validating the efficacy of RAG in enhancing the factual grounding and domain expertise of LLMs.
 
-## Results
+For a more detailed analysis of these findings, please refer to the full academic report: [./llamantino-project/document.pdf](./llamantino-project/document.pdf)
 
-* The fine-tuned model outperformed the original model on a perplexity test.
-* The fine-tuned model showed a bias towards a more formal and scientific language style.
-* The fine-tuned model did not perform well on the INVALSI benchmark.
-* The RAG implementation demonstrated strong context understanding and information retrieval.
+## Repository Structure
 
-## Dependencies
+The project is organized into a series of modules, each encapsulating a specific phase of the research workflow. The primary artifacts are located within the `delivery/` directory.
 
-* Python 3.10
-* PyTorch 2.4.1
-* Transformers 4.45.2
-* Datasets 2.0.1
-* Langchain 0.3.4
-* Gradio 4.17.1
-* FAISS 1.9.0
-* sentence-transformers 2.2.0
-* bitsandbytes 0.41.1
-* Unsloth 0.9.0
-* Jinja2
-* A complete list of dependencies can be found in `requirements.txt`.
+```
+delivery/
+├─── chat_bot/ -> [README](./delivery/chat_bot/README.md)
+│    └─── (CLI and GUI chatbot implementations)
+├─── chat_bot_with_rag/ -> [README](./delivery/chat_bot_with_rag/README.md)
+│    └─── (RAG-enhanced GUI chatbot and knowledge base)
+├─── evaluation/
+│    └─── (Scripts for model evaluation on standard benchmarks)
+├─── invalsi_benchmark/ -> [README](./delivery/invalsi_benchmark/README.md)
+│    └─── (Custom INVALSI benchmark implementation and results)
+├─── model_dump/
+│    └─── Formal_LLaMAntino_3/ -> [Model Card](./delivery/model_dump/Formal_LLaMAntino_3/README.md)
+│         └─── (Fine-tuned model adapters and configuration)
+├─── perplexity/
+│    └─── (Scripts and results for perplexity evaluation)
+└─── training/
+     └─── (Scripts for model fine-tuning)
+```
 
-## Installation
+## Frameworks and Technologies
 
-1.  Clone the repository:
+This project leverages several key frameworks and libraries from the modern NLP ecosystem:
 
-    ```bash
-    git clone [https://github.com/username/your-repo.git](https://www.google.com/search?q=https://github.com/username/your-repo.git)
-    ```
-
-2.  Navigate to the project directory:
-
-    ```bash
-    cd your-repo
-    ```
-
-3.  Install the dependencies:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Usage
-
-###   Chatbot
-
-1.  To run the command-line interface (CLI) chatbot:
-
-    ```bash
-    python delivery/chat_bot/cli_chat_formal_llamantino_3.py
-    ```
-
-2.  To run the graphical user interface (GUI) chatbot:
-
-    ```bash
-    python delivery/chat_bot/gui_chat_formal_llamantino_3.py
-    ```
-
-###   Chatbot with RAG
-
-1.  To run the GUI chatbot with RAG:
-
-    ```bash
-    python delivery/chat_bot_with_rag/gui_chat_w_rag_formal_llamantino_3.py
-    ```
-
-###   Evaluation
-
-1.  To evaluate the model using the original LLaMAntino 3 evaluation script:
-
-    ```bash
-    bash delivery/evaluation/evaluate_lamantino_and_ours.sh
-    ```
-
-###   INVALSI Benchmark
-
-1.  To run the INVALSI benchmark:
-
-    ```bash
-    python delivery/invalsi_benchmark/invalsi_test.py
-    ```
-
-## Model Fine-tuning
-
-The script used for fine-tuning the model on the Wikipedia dataset is located at `delivery/training/llamantino_wiki_train.py`.
-
-## Datasets
-
-* Italian Wikipedia dataset: Used for fine-tuning.
-* INVALSI dataset: Used for evaluation.
-* RAG dataset: A custom dataset of Italian literature documents
+-   **[PyTorch](https://pytorch.org/):** The core deep learning framework.
+-   **[Hugging Face Transformers](https://huggingface.co/docs/transformers/index):** For model loading and text generation pipelines.
+-   **[Hugging Face PEFT](https://huggingface.co/docs/peft/index):** For Parameter-Efficient Fine-Tuning, specifically LoRA.
+-   **[Unsloth](https://github.com/unslothai/unsloth):** For optimized, memory-efficient training.
+-   **[LangChain](https://www.langchain.com/):** For the implementation of the Retrieval-Augmented Generation (RAG) system.
+-   **[FAISS](https://faiss.ai/):** For efficient similarity search in the RAG system's vector store.

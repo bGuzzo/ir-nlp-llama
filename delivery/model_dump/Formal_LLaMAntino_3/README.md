@@ -3,200 +3,94 @@ base_model: swap-uniba/LLaMAntino-3-ANITA-8B-Inst-DPO-ITA
 library_name: peft
 ---
 
-# Model Card for Model ID
+# Model Card for Formal_LLaMAntino_3
 
-<!-- Provide a quick summary of what the model is/does. -->
-
-
+This model, `Formal_LLaMAntino_3`, is a fine-tuned version of the `swap-uniba/LLaMAntino-3-ANITA-8B-Inst-DPO-ITA` model. It has been further adapted through a rigorous fine-tuning process on the Italian Wikipedia dataset to enhance its proficiency and stylistic formality in the Italian language.
 
 ## Model Details
 
 ### Model Description
 
-<!-- Provide a longer summary of what this model is. -->
+The primary objective of this fine-tuning was to specialize the base model for generating formal and scientific discourse in Italian. The process employed Parameter-Efficient Fine-Tuning (PEFT) with Low-Rank Adaptation (LoRA), making it feasible to train on consumer-grade hardware.
 
-
-
-- **Developed by:** [More Information Needed]
-- **Funded by [optional]:** [More Information Needed]
-- **Shared by [optional]:** [More Information Needed]
-- **Model type:** [More Information Needed]
-- **Language(s) (NLP):** [More Information Needed]
-- **License:** [More Information Needed]
-- **Finetuned from model [optional]:** [More Information Needed]
-
-### Model Sources [optional]
-
-<!-- Provide the basic links for the model. -->
-
-- **Repository:** [More Information Needed]
-- **Paper [optional]:** [More Information Needed]
-- **Demo [optional]:** [More Information Needed]
+- **Developed by:** Bruno Guzzo
+- **Model type:** Causal Language Model
+- **Language(s) (NLP):** Italian
+- **License:** Inherits the license from the base model, `swap-uniba/LLaMAntino-3-ANITA-8B-Inst-DPO-ITA`.
+- **Finetuned from model:** `swap-uniba/LLaMAntino-3-ANITA-8B-Inst-DPO-ITA`
 
 ## Uses
 
-<!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
-
 ### Direct Use
 
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
-
-[More Information Needed]
-
-### Downstream Use [optional]
-
-<!-- This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/app -->
-
-[More Information Needed]
+This model is intended for direct use as a conversational agent, particularly for applications requiring a high degree of formality and extensive general knowledge in the Italian language. It is well-suited for chatbots, content generation, and question-answering systems within academic or professional contexts.
 
 ### Out-of-Scope Use
 
-<!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
-
-[More Information Needed]
+This model is not intended for generating informal or colloquial Italian. Its performance on creative writing tasks may be limited due to its specialization in formal discourse.
 
 ## Bias, Risks, and Limitations
 
-<!-- This section is meant to convey both technical and sociotechnical limitations. -->
-
-[More Information Needed]
-
-### Recommendations
-
-<!-- This section is meant to convey recommendations with respect to the bias, risk, and technical limitations. -->
-
-Users (both direct and downstream) should be made aware of the risks, biases and limitations of the model. More information needed for further recommendations.
+As a result of its training on the Italian Wikipedia, the model may exhibit biases present in the dataset. The fine-tuning process has also specialized the model towards a formal and scientific language style, which may result in suboptimal performance on tasks requiring informal or creative language.
 
 ## How to Get Started with the Model
 
-Use the code below to get started with the model.
+```python
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-[More Information Needed]
+base_model = "/path/to/your/model_dump/Formal_LLaMAntino_3"
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.bfloat16,
+    bnb_4bit_use_double_quant=False,
+)
+
+model = AutoModelForCausalLM.from_pretrained(
+    base_model,
+    quantization_config=bnb_config,
+    device_map="auto",
+)
+
+tokenizer = AutoTokenizer.from_pretrained(base_model)
+```
 
 ## Training Details
 
 ### Training Data
 
-<!-- This should link to a Dataset Card, perhaps with a short stub of information on what the training data is all about as well as documentation related to data pre-processing or additional filtering. -->
-
-[More Information Needed]
+The model was fine-tuned on the `20231101.it` split of the `wikimedia/wikipedia` dataset, which comprises a comprehensive corpus of Italian text.
 
 ### Training Procedure
 
-<!-- This relates heavily to the Technical Specifications. Content here should link to that section when it is relevant to the training procedure. -->
-
-#### Preprocessing [optional]
-
-[More Information Needed]
-
+The model was fine-tuned using the `unsloth` library for efficient training. The process involved 4-bit quantization and Parameter-Efficient Fine-Tuning (PEFT) with Low-Rank Adaptation (LoRA).
 
 #### Training Hyperparameters
 
-- **Training regime:** [More Information Needed] <!--fp32, fp16 mixed precision, bf16 mixed precision, bf16 non-mixed precision, fp16 non-mixed precision, fp8 mixed precision -->
-
-#### Speeds, Sizes, Times [optional]
-
-<!-- This section provides information about throughput, start/end time, checkpoint size if relevant, etc. -->
-
-[More Information Needed]
+- **`max_seq_length`**: 32
+- **`num_train_epochs`**: 1
+- **`per_device_train_batch_size`**: 8
+- **`gradient_accumulation_steps`**: 4
+- **`learning_rate`**: 2e-4
+- **`optim`**: "paged_adamw_8bit"
+- **`lora_r`**: 32
+- **`lora_alpha`**: 8
+- **`use_rslora`**: True
 
 ## Evaluation
 
-<!-- This section describes the evaluation protocols and provides the results. -->
-
 ### Testing Data, Factors & Metrics
 
-#### Testing Data
-
-<!-- This should link to a Dataset Card if possible. -->
-
-[More Information Needed]
-
-#### Factors
-
-<!-- These are the things the evaluation is disaggregating by, e.g., subpopulations or domains. -->
-
-[More Information Needed]
-
-#### Metrics
-
-<!-- These are the evaluation metrics being used, ideally with a description of why. -->
-
-[More Information Needed]
+- **Testing Data**: The model was evaluated on a held-out portion of the Italian Wikipedia dataset for perplexity, and on Italian versions of the ARC and HellaSwag benchmarks for commonsense reasoning.
+- **Metrics**: Perplexity, ROUGE-1
 
 ### Results
 
-[More Information Needed]
-
-#### Summary
-
-
-
-## Model Examination [optional]
-
-<!-- Relevant interpretability work for the model goes here -->
-
-[More Information Needed]
+The model demonstrated a significant improvement in perplexity on the Italian Wikipedia dataset when compared to its base model. However, a degradation in performance was observed on the ARC and HellaSwag benchmarks. This is hypothesized to be a consequence of the model's stylistic shift towards a more formal and scientific mode of expression, which may not be optimally aligned with the nature of these particular benchmarks.
 
 ## Environmental Impact
 
-<!-- Total emissions (in grams of CO2eq) and additional considerations, such as electricity usage, go here. Edit the suggested text below accordingly -->
-
-Carbon emissions can be estimated using the [Machine Learning Impact calculator](https://mlco2.github.io/impact#compute) presented in [Lacoste et al. (2019)](https://arxiv.org/abs/1910.09700).
-
-- **Hardware Type:** [More Information Needed]
-- **Hours used:** [More Information Needed]
-- **Cloud Provider:** [More Information Needed]
-- **Compute Region:** [More Information Needed]
-- **Carbon Emitted:** [More Information Needed]
-
-## Technical Specifications [optional]
-
-### Model Architecture and Objective
-
-[More Information Needed]
-
-### Compute Infrastructure
-
-[More Information Needed]
-
-#### Hardware
-
-[More Information Needed]
-
-#### Software
-
-[More Information Needed]
-
-## Citation [optional]
-
-<!-- If there is a paper or blog post introducing the model, the APA and Bibtex information for that should go in this section. -->
-
-**BibTeX:**
-
-[More Information Needed]
-
-**APA:**
-
-[More Information Needed]
-
-## Glossary [optional]
-
-<!-- If relevant, include terms and calculations in this section that can help readers understand the model or model card. -->
-
-[More Information Needed]
-
-## More Information [optional]
-
-[More Information Needed]
-
-## Model Card Authors [optional]
-
-[More Information Needed]
-
-## Model Card Contact
-
-[More Information Needed]
-### Framework versions
-
-- PEFT 0.13.2
+- **Hardware Type:** Consumer-grade GPU (8GB VRAM)
+- **Hours used:** ~50 hours
+- **Carbon Emitted:** Not measured
