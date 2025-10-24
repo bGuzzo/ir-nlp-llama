@@ -172,3 +172,5 @@ cython_debug/
 *.zip
 *.pt
 *.bin
+
+.info
